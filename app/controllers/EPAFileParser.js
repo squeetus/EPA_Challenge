@@ -39,9 +39,9 @@ exports.clearDBS = function() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 exports.testFacility = function() {
-    Facility.find().remove(function(e) {
-      console.log('cleared facilities');
-    });
+    // Facility.find().remove(function(e) {
+    //   console.log('cleared facilities');
+    // });
 
     var f = new Facility();
     f.facility_name = "testFacility";
@@ -54,11 +54,11 @@ exports.testFacility = function() {
     f.zip = 12345;
     f.bia_code = 1;
     f.tribe = "maybe tribe";
-    f.lat = 75.35;
-    f.long = -33.98;
+    f.loc = [-33.98, 75.35];
     f.federal_facility = "NO";
     f.primary_sic = 1234;
     f.primary_naics = 4321;
+    f.chemicals = [];
     f.chemicals.push({
       air: [0, 0, 0],
       water: [0, 1, 0],
@@ -274,8 +274,8 @@ var finalize = function() {
   };
   insertAllFacilities( i );
 
-  Chemical.insertMany(chems, function(err) {
-    console.log( err, 'inserted chems');
-  });
+  // Chemical.insertMany(chems, function(err) {
+  //   console.log( err, 'inserted chems');
+  // });
   // store the arrays in the respective DB tables
 };
