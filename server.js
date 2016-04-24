@@ -1,6 +1,9 @@
-var express = require('express');
-var app = express();
-var mongoose = require('mongoose');
+var express = require('express'),
+    app = express(),
+    mongoose = require('mongoose'),
+    config = require('./config/config');
+
+console.log(config);
 
 // load in mongodb models
 var modelsPath = __dirname + '/app/models';
@@ -16,10 +19,10 @@ mongoose.connect('mongodb://localhost/EPA_University_Challenge', function(err){
 
 // EPAFileParser.testChemical();
 // EPAFileParser.testFacility();
-EPAFileParser.clearDBS();
+// EPAFileParser.clearDBS();
 
 // run with --max-old-space-size=4096 to allocate enough memory
-EPAFileParser.readFiles();
+// EPAFileParser.readFiles();
 
 
 
