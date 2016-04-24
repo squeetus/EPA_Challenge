@@ -17,8 +17,7 @@ var Facility = new Schema ({
     zip:                {type: Number, default: 0},
     bia_code:           {type: String, default: ''},
     tribe:              {type: String, default: ''},
-    lat:                {type: Number, default: 0.0},
-    long:               {type: Number, default: 0.0},
+    loc:                {type: [Number], index: '2dsphere', default: [null, null]},
     federal_facility:   {type: String, default: ''},
     primary_sic:        {type: Number, default: 0},
     primary_naics:      {type: Number, default: 0},
@@ -115,12 +114,17 @@ Facility.statics.construct = function( f, attrs ) {
   f.zip = parseFloat(attrs[7]);
   f.bia_code = attrs[8];
   f.tribe = attrs[9];
-  f.lat = parseFloat(attrs[10]);
-  if( isNaN(f.lat) )
-    f.lat = null;
-  f.long = parseFloat(attrs[11]);
-  if( isNaN(f.long) )
-    f.long = null;
+
+  if(!attrs[10] || isNaN(parseFloat(attrs[10]))) {
+    console.log('boop', attrs[10], parseFloat(attrs[10]), isNaN(parseFloat(attrs[10])));
+    f.loc = null;
+  }
+  else if(!attrs[11] || isNaN(parseFloat(attrs[11]))) {
+    console.log('boop', attrs[11], parseFloat(attrs[11]), isNaN(parseFloat(attrs[11])));
+    f.loc = null;
+  }
+  else f.loc = [parseFloat(attrs[11]), parseFloat(attrs[10])];
+
   f.federal_facility = attrs[12];
 
   f.primary_sic = parseFloat(attrs[13]);
