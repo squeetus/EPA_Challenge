@@ -6,6 +6,39 @@ var mongoose = require('mongoose'),
     Chemical = mongoose.model('Chemical'),
     Schema = mongoose.Schema;
 
+var Facility = new Schema ({
+    tri_facility_id:    {type: String, default: ''},
+    parent_company:     {type: String, default: ''},
+    facility_name:      {type: String, default: ''},
+    street_address:     {type: String, default: ''},
+    city:               {type: String, default: ''},
+    county:             {type: String, default: ''},
+    state:              {type: String, default: ''},
+    zip:                {type: Number, default: 0},
+    bia_code:           {type: String, default: ''},
+    tribe:              {type: String, default: ''},
+    lat:                {type: Number, default: 0.0},
+    long:               {type: Number, default: 0.0},
+    federal_facility:   {type: String, default: ''},
+    primary_sic:        {type: Number, default: 0},
+    primary_naics:      {type: Number, default: 0},
+    chemicals:          {}
+    /* each element in the chemicals array will have the following attributes:
+      cas: ''
+      air: []
+      water: []
+      land: []
+      recycling: []
+      recovery: []
+      treatment: []
+      off-site_disposal: []
+      off-site_recycling: []
+      off-site_recovery: []
+      off-site_treatment: []
+      off-site_potws: []
+     */
+});
+
 var makeChemical = function( attrs ) {
   // set up chemical
   var c = {},
@@ -69,38 +102,7 @@ var updateChemical = function( c, attrs ) {
   c.offsite_potws[i] += parseFloat(attrs[50]);
 };
 
-var Facility = new Schema ({
-    tri_facility_id:    {type: String, default: ''},
-    parent_company:     {type: String, default: ''},
-    facility_name:      {type: String, default: ''},
-    street_address:     {type: String, default: ''},
-    city:               {type: String, default: ''},
-    county:             {type: String, default: ''},
-    state:              {type: String, default: ''},
-    zip:                {type: Number, default: 0},
-    bia_code:           {type: String, default: ''},
-    tribe:              {type: String, default: ''},
-    lat:                {type: Number, default: 0.0},
-    long:               {type: Number, default: 0.0},
-    federal_facility:   {type: String, default: ''},
-    primary_sic:        {type: Number, default: 0},
-    primary_naics:      {type: Number, default: 0},
-    chemicals:          {}
-    /* each element in the chemicals array will have the following attributes:
-      cas: ''
-      air: []
-      water: []
-      land: []
-      recycling: []
-      recovery: []
-      treatment: []
-      off-site_disposal: []
-      off-site_recycling: []
-      off-site_recovery: []
-      off-site_treatment: []
-      off-site_potws: []
-     */
-});
+
 
 Facility.statics.construct = function( f, attrs ) {
   f.tri_facility_id = attrs[1];
