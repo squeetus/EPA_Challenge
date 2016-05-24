@@ -13,7 +13,7 @@ module.exports = function( grunt ) {
       },
       dist: {
         // the files to concatenate
-        src: ['app/**/*.js'],
+        src: ['app/**/*.js', 'config/**/*.js'],
         // the location of the resulting JS file
         dest: 'dist/<%= pkg.name %>.js'
       }
@@ -45,13 +45,14 @@ module.exports = function( grunt ) {
     watch: {
       options: {
         livereload: true,
-        nospawn: true 
+        nospawn: true
       },
       files: ['<%= jshint.files %>'],
       tasks: ['jshint', 'develop']
     }
   });
 
+  // load all grunt plugins and tasks
   grunt.loadNpmTasks('grunt-develop');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');

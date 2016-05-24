@@ -3,7 +3,8 @@ var mongoose = require('mongoose'),
 
 exports.facilities = function(req, res, next) {
     var limit = (req.query.limit && req.query.limit < 100) ? req.query.limit : 10,
-        chemicals = (req.query.chemicals) ? req.query.chemicals : false;
+        chemicals = (req.query.chemicals) ? req.query.chemicals : false,
+        skip = (req.query.skip) ? req.query.skip : 0;
 
     Facility
         .find({
@@ -12,6 +13,7 @@ exports.facilities = function(req, res, next) {
         {
           chemicals: chemicals
         })
+        .skip(skip)
         .limit(limit)
         .exec(function (err, data) {
             if (err) return next(err);
