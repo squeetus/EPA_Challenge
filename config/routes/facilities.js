@@ -5,6 +5,9 @@ module.exports = function( app, handleError ) {
     res.send('Accessing Data!');
   });
 
+  app.get('/facilities', Facility.showFacilities, handleError);
   app.get('/data/facilities', Facility.facilities, handleError);
+
+  app.get('/facilities/:fid', Facility.showFacility, handleError);
   app.get('/data/facilities/:fid', Facility.facility, handleError);
 };
