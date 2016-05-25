@@ -1,0 +1,28 @@
+doctype
+html( lang="en" )
+    head
+        title Facilities
+        meta( charset='utf-8' )
+        meta( http-equiv='X-UA-Compatible', content='IE=edge' )
+        meta( name='viewport', content='width=device-width, initial-scale=1.0' )
+        meta( name='description', content='Baking Bootstrap Snippets with Jade' )
+        //- Bootswatch Theme
+        link(href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.0/flatly/bootstrap.min.css", rel="stylesheet")
+
+    body(style="padding-bottom:10rem;")
+        .container
+
+        h1 Facilities
+
+        each val in data
+          .panel.panel-default
+            .panel-heading=val.facility_name
+            .panel-body
+              p="TRI facility ID: " + val.tri_facility_id
+              p="address: " + val.street_address + ", " + val.city + ", " + val.county + ", " + val.state + ", " + val.zip
+              p="parent company: " + val.parent_company
+
+
+script( src='//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js' )
+script( src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js' )
+script(src="/js/tmp.js")

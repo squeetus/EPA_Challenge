@@ -3,6 +3,7 @@ var mongoose = require('mongoose'),
     jsdom = require('jsdom'),
     d3 = require('d3');
 
+
 /*
     API endpoint for some number of facilities
 */
@@ -50,24 +51,25 @@ exports.showFacilities = function(req, res, next) {
             if (!data)
                 return next("no data");
 
+                res.render("facilities", {data: data});
                 // use jsdom and d3 to render the page, then send it to the client
-                jsdom.env(
-                  htmlStub,
-                  function (errors, window) {
-                    var el = window.document.querySelector('#facility-container');
-                    // var body = window.document.querySelector('body');
-
-                    // bind facilities to divs
-                    d3.select(el).selectAll('div')
-                          .data(data)
-                        .enter().append('div')
-                          .text(function(d) {
-                            return d.tri_facility_id;
-                          });
-
-                    res.send(window.document.documentElement.innerHTML);
-                  }
-                );
+                // jsdom.env(
+                //   htmlStub,
+                //   function (errors, window) {
+                //     var el = window.document.querySelector('#facility-container');
+                //     // var body = window.document.querySelector('body');
+                //
+                //     // bind facilities to divs
+                //     d3.select(el).selectAll('div')
+                //           .data(data)
+                //         .enter().append('div')
+                //           .text(function(d) {
+                //             return d.tri_facility_id;
+                //           });
+                //
+                //     res.send(window.document.documentElement.outerHTML);
+                //   }
+                // );
     });
 };
 
