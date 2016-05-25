@@ -11,7 +11,6 @@ mongoose.connect(config.db, function(err){
  if(err) console.log("Mongoose error: ", err);
 });
 
-
 var EPAFileParser = require('./app/controllers/EPAFileParser');
 // EPAFileParser.testChemical();
 // EPAFileParser.testFacility();

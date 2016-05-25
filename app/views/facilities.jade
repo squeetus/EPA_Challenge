@@ -12,17 +12,17 @@ html( lang="en" )
     body(style="padding-bottom:10rem;")
         .container
 
-        h1 Facilities
+          h1 Facilities
 
-        each val in data
-          .panel.panel-default
-            .panel-heading=val.facility_name
-            .panel-body
-              p="TRI facility ID: " + val.tri_facility_id
-              p="address: " + val.street_address + ", " + val.city + ", " + val.county + ", " + val.state + ", " + val.zip
-              p="parent company: " + val.parent_company
+          button.btn.btn-info.p-a-3#back <
+          span
+          button.btn.btn-info.m-a-3#forward >
+
+          .panels
 
 
+
+script( src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js')
 script( src='//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js' )
 script( src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js' )
-script(src="/js/tmp.js")
+script(src="/js/facility.js")
