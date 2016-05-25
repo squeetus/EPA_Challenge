@@ -19,6 +19,9 @@ var EPAFileParser = require('./app/controllers/EPAFileParser');
 // run with --max-old-space-size=4096 to allocate enough memory
 // EPAFileParser.readFiles();
 
+// serve static files from the public directory
+app.use(express.static(config.root + '/public'));
+
 app.listen(config.port, function () {
   console.log('EPA Challenge app listening on port', config.port, '!');
 });
