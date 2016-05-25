@@ -8,17 +8,16 @@ var mongoose = require('mongoose'),
     API endpoint for some number of facilities
 */
 exports.facilities = function(req, res, next) {
-    var limit = (req.query.limit && req.query.limit < 100) ? req.query.limit : 10,
+    var limit = (req.query.limit && req.query.limit < 55000) ? req.query.limit : 10,
         chemicals = (req.query.chemicals) ? req.query.chemicals : false,
         skip = (req.query.skip) ? req.query.skip : 0;
 
     Facility
-        .find({
-
-        },
+        .find({},
         {
           chemicals: chemicals
         })
+        .sort( { facility_name: 1 } )
         .skip(skip)
         .limit(limit)
         .exec(function (err, data) {
@@ -34,43 +33,7 @@ exports.facilities = function(req, res, next) {
     (Render html)
 */
 exports.showFacilities = function(req, res, next) {
-    var limit = (req.query.limit && req.query.limit < 100) ? req.query.limit : 10,
-        chemicals = (req.query.chemicals) ? req.query.chemicals : false,
-        skip = (req.query.skip) ? req.query.skip : 0,
-        htmlStub = '<div id="facility-container"></div>';
-
-    Facility
-        .find({},
-        {
-          chemicals: chemicals
-        })
-        .skip(skip)
-        .limit(limit)
-        .exec(function (err, data) {
-            if (err) return next(err);
-            if (!data)
-                return next("no data");
-
-                res.render("facilities", {data: data});
-                // use jsdom and d3 to render the page, then send it to the client
-                // jsdom.env(
-                //   htmlStub,
-                //   function (errors, window) {
-                //     var el = window.document.querySelector('#facility-container');
-                //     // var body = window.document.querySelector('body');
-                //
-                //     // bind facilities to divs
-                //     d3.select(el).selectAll('div')
-                //           .data(data)
-                //         .enter().append('div')
-                //           .text(function(d) {
-                //             return d.tri_facility_id;
-                //           });
-                //
-                //     res.send(window.document.documentElement.outerHTML);
-                //   }
-                // );
-    });
+    res.render("facilities", {d3: d3});
 };
 
 /*
