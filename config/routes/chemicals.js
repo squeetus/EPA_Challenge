@@ -5,6 +5,8 @@ module.exports = function( app, handleError ) {
     res.send('Accessing Data!');
   });
 
+  app.get('/chemicals', Chemical.showChemicals, handleError);
   app.get('/data/chemicals', Chemical.chemicals, handleError);
+
   app.get('/data/chemical/:cas', Chemical.chemical, handleError);
 };
