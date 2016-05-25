@@ -9,14 +9,10 @@ var mongoose = require('mongoose'),
 */
 exports.facilities = function(req, res, next) {
     var limit = (req.query.limit && req.query.limit < 55000) ? req.query.limit : 10,
-        chemicals = (req.query.chemicals) ? req.query.chemicals : false,
         skip = (req.query.skip) ? req.query.skip : 0;
 
     Facility
         .find({})
-        // {
-        //   chemicals: chemicals
-        // })
         .sort( { facility_name: 1 } )
         .skip(skip)
         .limit(limit)
@@ -34,7 +30,6 @@ exports.facilities = function(req, res, next) {
 */
 exports.showFacilities = function(req, res, next) {
     var limit = (req.query.limit && req.query.limit < 1000) ? req.query.limit : 10,
-        chemicals = (req.query.chemicals) ? req.query.chemicals : false,
         page = (req.query.page) ? req.query.page : 1;
     res.render("facilities", {limit: limit, page: page});
 };

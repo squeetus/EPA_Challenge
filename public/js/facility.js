@@ -32,9 +32,10 @@ d3.select("#forward").on("click", function() {
 var getFacilities = function(number, page, cb) {
   // GET facility data from API
   $.ajax({
-      url: "/data/facilities?chemicals=true&limit="+number+"&skip="+(number*(page-1)),
+      url: "/data/facilities?limit="+number+"&skip="+(number*(page-1)),
       type: "get"
   }).done(function(data) {
+    console.log(data);
       cb(data);
   }).error(function(err){
       console.log(err);
