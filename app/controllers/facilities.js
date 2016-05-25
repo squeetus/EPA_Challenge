@@ -33,7 +33,10 @@ exports.facilities = function(req, res, next) {
     (Render html)
 */
 exports.showFacilities = function(req, res, next) {
-    res.render("facilities");
+    var limit = (req.query.limit && req.query.limit < 1000) ? req.query.limit : 10,
+        chemicals = (req.query.chemicals) ? req.query.chemicals : false,
+        page = (req.query.page) ? req.query.page : 1;
+    res.render("facilities", {limit: limit, page: page});
 };
 
 /*

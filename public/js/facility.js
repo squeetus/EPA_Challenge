@@ -1,10 +1,9 @@
-var page = 1, limit = 10;
 String.prototype.toProperCase = function () {
     return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
 
+// accept keypress events
 $(function(){
-
  document.onkeypress = function(e){
    if(e.keyCode === 13) {
      console.log('hit');
@@ -12,20 +11,19 @@ $(function(){
  };
 });
 
+// bind pagination functionality to the 'back' button
 d3.select("#back").on("click", function() {
   console.log('click');
   if(page > 1)
     createFacilityList(limit,  --page);
-
-
-
 });
 
+// bind pagination functionality to the 'forward' button
 d3.select("#forward").on("click", function() {
   console.log('click');
   createFacilityList(limit, ++page);
-
 });
+
 
 /*
     Asynchronous method queries for a particular page of facilities
@@ -56,6 +54,12 @@ var createFacilityList = function(limit, page) {
 
   // get facilities from API, then render the list
   getFacilities(limit, page, function(data) {
+
+    // if asynchronous API call returned error, don't continue
+    if(typeof data != 'object') {
+      console.log("error!");
+      return;
+    }
 
     // return an array containing the sum of each index of all arrays passed
     var addArrays = function(args) {
