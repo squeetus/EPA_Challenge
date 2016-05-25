@@ -13,10 +13,10 @@ exports.facilities = function(req, res, next) {
         skip = (req.query.skip) ? req.query.skip : 0;
 
     Facility
-        .find({},
-        {
-          chemicals: chemicals
-        })
+        .find({})
+        // {
+        //   chemicals: chemicals
+        // })
         .sort( { facility_name: 1 } )
         .skip(skip)
         .limit(limit)
@@ -33,7 +33,7 @@ exports.facilities = function(req, res, next) {
     (Render html)
 */
 exports.showFacilities = function(req, res, next) {
-    res.render("facilities", {d3: d3});
+    res.render("facilities");
 };
 
 /*
