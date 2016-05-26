@@ -4,8 +4,14 @@ var mongoose = require('mongoose'),
     d3 = require('d3');
 
 
+/************************************************
+
+    API Endpoints for Facility queries
+
+************************************************/
+
 /*
-    API endpoint for some number of facilities
+    Get all facilities
 */
 exports.facilities = function(req, res, next) {
     var limit = (req.query.limit && req.query.limit < 55000) ? req.query.limit : 10,
@@ -26,7 +32,6 @@ exports.facilities = function(req, res, next) {
 
 /*
     Generate a visualization for some number of facilities
-    (Render html)
 */
 exports.showFacilities = function(req, res, next) {
     var limit = (req.query.limit && req.query.limit < 1000) ? req.query.limit : 10,
@@ -83,6 +88,117 @@ exports.facility = function(req, res, next) {
             if (err) return next(err);
             if (!data)
                 return next("no data for facility with facility id " + req.params.fid);
+            res.json(data);
+    });
+};
+
+/************************************************
+
+    API Endpoints for industry queries
+
+************************************************/
+
+/*
+    return a list of unique industries
+*/
+exports.industries = function(req, res, next) {
+    Facility
+        .aggregate([
+          {$group: {_id: '$primary_naics'}}
+        ])
+        .sort(
+          {_id: 1}
+        )
+        .exec(function (err, data) {
+            if (err) return next(err);
+            if (!data)
+                return next("no data for industries");
+            res.json(data);
+    });
+};
+
+/*
+    return a list of industry sectors and the total aggregate usage
+*/
+exports.industriesTotalUsage = function(req, res, next) {
+    Facility
+        .aggregate([
+          {$project: {
+              primary_naics: 1, primary_sic: 1,
+              tri_facility_id: 1,
+              usage: {$sum: "$total_usage"},
+            }
+          },
+          {$group: {
+              _id: '$primary_naics',
+              total: {$sum: "$usage"}
+              }
+          }
+        ])
+        .sort(
+          {total: -1}
+        )
+        .exec(function (err, data) {
+            if (err) return next(err);
+            if (!data)
+                return next("no data for industries.");
+            res.json(data);
+    });
+};
+
+/*
+    return a list of industry sectors and the yearly total usage
+*/
+exports.industriesUsage = function(req, res, next) {
+    Facility
+        .aggregate([
+          {$project: {
+              primary_naics: 1, primary_sic: 1,
+              tri_facility_id: 1,
+              usage: {$sum: "$total_usage"},
+            }
+          },
+          {$group: {
+              _id: '$primary_naics',
+              total: {$sum: "$usage"}
+              }
+          }
+        ])
+        .sort(
+          {total: -1}
+        )
+        .exec(function (err, data) {
+            if (err) return next(err);
+            if (!data)
+                return next("no data for industries.");
+            res.json(data);
+    });
+};
+
+/*
+    return a list of industry sectors and the total aggregate usage
+*/
+exports.industriesFacilities = function(req, res, next) {
+    Facility
+        .aggregate([
+          {$project: {
+              primary_naics: 1, primary_sic: 1,
+              tri_facility_id: 1,
+            }
+          },
+          {$group: {
+              _id: '$primary_naics',
+              facilities: {$push: "$tri_facility_id"}
+              }
+          }
+        ])
+        .sort(
+          {_id: 1}
+        )
+        .exec(function (err, data) {
+            if (err) return next(err);
+            if (!data)
+                return next("no data for industries.");
             res.json(data);
     });
 };

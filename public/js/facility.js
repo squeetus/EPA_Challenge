@@ -98,7 +98,8 @@ var createFacilityList = function(limit, page) {
             facString += "Address: <span class='address'>"+d.street_address + ", " + d.city + ", " + d.county + ", " + d.state + ", " + d.zip + ", [" + d.loc + "]</span><br />";
             facString += (d.bia_code || d.tribe) ? "Tribe: <span class='tribe'>"+d.bia_code + " " + d.tribe+"</span><br />" : "";
             facString += "Federal Facility: <span class='federal_facility'>"+d.federal_facility+"</span><br />";
-            facString += "Industry: NAICS <span class='naics'>"+d.primary_naics + "</span>, SIC <span class='sic'>" + d.primary_sic+"</span><br /><br />";
+            facString += "Industry: NAICS <span class='naics'>"+d.primary_naics + "</span>, SIC <span class='sic'>" + d.primary_sic+"</span><br />";
+            facString += "Total Usage: <span class='total_usage'>"+d.total_usage+"</span><br /><br />";
             for(var c in d.chemicals) {
               facString += "<span class='chemical'>" + d.chemicals[c].chemical + "  ---  " + c + "</span><br />";
               facString += "<span class='airReleases chemicalData'>Air: " + d.chemicals[c].air + "</span><br />";
@@ -108,6 +109,7 @@ var createFacilityList = function(limit, page) {
               facString += "<span class='recovery chemicalData'>Recovery: " + d.chemicals[c].air + "</span><br />";
               facString += "<span class='treatment chemicalData'>Treatment: " + d.chemicals[c].land + "</span><br />";
               facString += "<span class='offsite chemicalData'>off-site: " + addArrays([d.chemicals[c].offsite_disposal,d.chemicals[c].offsite_recycling,d.chemicals[c].offsite_recovery,d.chemicals[c].offsite_treatment,d.chemicals[c].offsite_potws]) + "</span><br /><br />";
+              facString += "<span class='usage chemicalData'>Total Usage: " + d.chemicals[c].total_usage + "</span><br />";
             }
             return facString;
           });

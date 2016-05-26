@@ -21,6 +21,7 @@ var Facility = new Schema ({
     federal_facility:   {type: String, default: ''},
     primary_sic:        {type: Number, default: 0},
     primary_naics:      {type: Number, default: 0},
+    total_usage:        {type: [Number], default: 0},
     chemicals:          {}
     /* each element in the chemicals array will have the following attributes:
       cas: ''
@@ -35,6 +36,7 @@ var Facility = new Schema ({
       off-site_recovery: []
       off-site_treatment: []
       off-site_potws: []
+      total_usage: []
      */
 });
 
@@ -54,7 +56,9 @@ var makeChemical = function( attrs ) {
   c.offsite_recovery = [];
   c.offsite_treatment = [];
   c.offsite_potws = [];
+  c.total_usage = [];
 
+  // initialize yearly chemical usage to 0
   for( i + 1987; (i + 1987) < 2014; i++ ) {
     // if( i == parseInt(attrs[0])) continue;
     c.air[i] = 0;
@@ -68,6 +72,7 @@ var makeChemical = function( attrs ) {
     c.offsite_recovery[i] = 0;
     c.offsite_treatment[i] = 0;
     c.offsite_potws[i] = 0;
+    c.total_usage[i] = 0;
   }
   i = parseInt(attrs[0]) - 1987;
   c.air[i] = parseFloat(attrs[35]) + parseFloat(attrs[36]);
@@ -82,6 +87,8 @@ var makeChemical = function( attrs ) {
   c.offsite_recovery[i] = parseFloat(attrs[77]);
   c.offsite_treatment[i] = parseFloat(attrs[84]);
   c.offsite_potws[i] = parseFloat(attrs[50]);
+  c.total_usage[i] = c.air[i] + c.water[i] + c.land[i] + c.recycling[i] + c.recovery[i] + c.treatment[i] +
+    c.offsite_disposal[i] + c.offsite_recycling[i] + c.offsite_recovery[i] + c.offsite_treatment[i] + c.offsite_potws[i];
   return c;
 };
 
@@ -99,11 +106,12 @@ var updateChemical = function( c, attrs ) {
   c.offsite_recovery[i] += parseFloat(attrs[77]);
   c.offsite_treatment[i] += parseFloat(attrs[84]);
   c.offsite_potws[i] += parseFloat(attrs[50]);
+  c.total_usage[i] += c.air[i] + c.water[i] + c.land[i] + c.recycling[i] + c.recovery[i] + c.treatment[i] +
+    c.offsite_disposal[i] + c.offsite_recycling[i] + c.offsite_recovery[i] + c.offsite_treatment[i] + c.offsite_potws[i];
 };
 
-
-
 Facility.statics.construct = function( f, attrs ) {
+  // set facility information
   f.tri_facility_id = attrs[1];
   f.parent_company = attrs[100];
   f.facility_name = attrs[2];
@@ -115,6 +123,7 @@ Facility.statics.construct = function( f, attrs ) {
   f.bia_code = attrs[8];
   f.tribe = attrs[9];
 
+  // set lat/long coordinates
   if(!attrs[10] || isNaN(parseFloat(attrs[10]))) {
     console.log('boop', attrs[10], parseFloat(attrs[10]), isNaN(parseFloat(attrs[10])));
     f.loc = null;
@@ -127,6 +136,7 @@ Facility.statics.construct = function( f, attrs ) {
 
   f.federal_facility = attrs[12];
 
+  // set facility industry sector
   f.primary_sic = parseFloat(attrs[13]);
   if( isNaN(f.primary_sic) )
     f.primary_sic = null;
@@ -134,9 +144,21 @@ Facility.statics.construct = function( f, attrs ) {
   if( isNaN(f.primary_naics) )
     f.primary_naics = null;
 
+  // initialize facility's total usage
+  f.total_usage = [];
+  for( var i = 0; i < 27; i++)
+    f.total_usage[i] = 0;
+
+  // create chemicals object
   f.chemicals = {};
 
+  // add chemical to chemicals object
   f.chemicals[attrs[27]] = makeChemical(attrs);
+
+  // update facility's total usage for the chemical
+  for( var j = 0; j < 27; j++) {
+    f.total_usage[j] += f.chemicals[attrs[27]].total_usage[j];
+  }
 
 };
 
@@ -149,8 +171,16 @@ Facility.statics.construct = function( f, attrs ) {
 Facility.statics.modify = function( f, attrs ) {
   if( f.chemicals[ attrs[ 27 ] ] ) {
     updateChemical( f.chemicals[ attrs[ 27 ] ], attrs );
+
+    // update facility's total usage
+    for( var j = 0; j < 27; j++)
+      f.total_usage[j] += f.chemicals[attrs[27]].total_usage[j];
   } else {
     f.chemicals[ attrs[ 27 ] ] = makeChemical(attrs);
+
+    // update facility's total usage
+    for( var i = 0; i < 27; i++)
+      f.total_usage[i] += f.chemicals[attrs[27]].total_usage[i];
   }
 };
 
