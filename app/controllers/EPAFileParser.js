@@ -216,14 +216,16 @@ exports.readFiles = function(  ) {
       }
 
       /* Process Facility */
-      // create new facility if it doesn't exist in facility map
-      if( facilities[ splitLine[ 1 ] ] === undefined ) {
-        facilities[ splitLine[ 1 ] ] = {};
-        Facility.construct( facilities[ splitLine[ 1 ] ], splitLine );
-        if(isNaN(facilities[ splitLine [ 1 ] ].zip) )
-          console.log(facilities[ splitLine [ 1 ] ]);
-      } else {  // update existing facility
-        Facility.modify( facilities[ splitLine[ 1 ] ], splitLine );
+      if( splitLine[27]  !== '') {  // ignore facilities with no chemical (fixes small bug)
+        // create new facility if it doesn't exist in facility map
+        if( facilities[ splitLine[ 1 ] ] === undefined ) {
+          facilities[ splitLine[ 1 ] ] = {};
+          Facility.construct( facilities[ splitLine[ 1 ] ], splitLine );
+          if(isNaN(facilities[ splitLine [ 1 ] ].zip) )
+            console.log(facilities[ splitLine [ 1 ] ]);
+        } else {  // update existing facility
+          Facility.modify( facilities[ splitLine[ 1 ] ], splitLine );
+        }
       }
 
       // /* Process Chemical */
