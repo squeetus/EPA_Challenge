@@ -36,7 +36,7 @@ module.exports = function( app, handleError ) {
 
   ************************************************/
 
-  // app.get('/data/test', Facility.test, handleError);
+  app.get('/data/test', Facility.test, handleError);
 
   ///////////////////
   //////  API  //////

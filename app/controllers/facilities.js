@@ -14,8 +14,8 @@ var mongoose = require('mongoose'),
     Get all facilities
 */
 exports.facilities = function(req, res, next) {
-    var limit = (req.query.limit && req.query.limit < 55000) ? req.query.limit : 10,
-        skip = (req.query.skip) ? req.query.skip : 0;
+    var limit = (req.query.limit && req.query.limit < 55000) ? +req.query.limit : 10,
+        skip = (req.query.skip) ? +req.query.skip : 0;
 
     Facility
         .find({})
@@ -126,27 +126,28 @@ exports.facilitiesTotalUsage = function(req, res, next) {
 
 ************************************************/
 
-// mapreduce doesn't seem like a good approach:
-// exports.test = function(req, res, next) {
-//   var o = {};
-//   o.map = function() {
-//       emit(this.tri_facility_id, this.total_usage);
-//   };
-//   o.reduce = function(f, usage) {
-//       return 1;
-//   };
-//   o.out = {inline : 1};
-//   o.verbose = true;
-//
+exports.test = function(req, res, next) {
 //   Facility
-//       .mapReduce(o, function (err, data) {
-//         if (err) return next(err);
-//         if (!data)
-//            return next("no data for industries.");
-//         res.json(data);
-//       });
-//
-// };
+//       .aggregate([
+//         {$match: {
+//             primary_naics:
+//           }
+//         },
+//         {$project: {
+//             primary_naics: 1, primary_sic: 1,
+//             tri_facility_id: 1,
+//             chemicals: "$chemicals"
+//           }
+//         },
+//       ])
+//       // .limit(10)
+//       .exec(function (err, data) {
+//           if (err) return next(err);
+//           if (!data)
+//               return next("no data for industries.");
+//           res.json(data);
+//   });
+};
 
 /*
     return a list of unique industries
@@ -169,6 +170,7 @@ exports.industries = function(req, res, next) {
 
 /*
     return a list of industry sectors and the total aggregate usage
+    sorted largest to smallest by total usage over time
 */
 exports.industriesTotalUsage = function(req, res, next) {
     Facility
@@ -198,6 +200,8 @@ exports.industriesTotalUsage = function(req, res, next) {
 
 /*
     return a list of industry sectors and the yearly total usage
+    ordered from largest to smallest
+    Route:  /data/industries/usage
 */
 exports.industriesUsage = function(req, res, next) {
     var from = (req.query.from) ? req.query.from - 1986 : 0,
@@ -215,22 +219,28 @@ exports.industriesUsage = function(req, res, next) {
               primary_naics: 1, primary_sic: 1,
               tri_facility_id: 1,
               // total_usage: 1,
-              "usage_subset": {$slice : ["$total_usage", from, to]}
+              "usage_subset": {$slice : ["$total_usage", from, to]},
+              "usage": {$sum: {$slice : ["$total_usage", from, to]}}  // facilitate sorting on total usage
             }
           },
+          // Group on NAICS code
           {$group: {
              _id: "$primary_naics",
-             usage: {$push: "$usage_subset"} // hacky: push all facilities' total usage into group's total usage
+             total: {$sum: "$usage"},
+             usage: {$push: "$usage_subset"} // hacky: push all facilities' total usage into group's total usage for later aggregation
            }
           }
         ])
+        .sort(
+          {total: -1}   // order the sectors by total usage, largest to smallest
+        )
         .exec(function(err, data) {
             if (err) return next(err);
             if (!data)
               return next("no data for industries.");
 
             // compute total usage for each industry
-            // for each industry
+            //for each industry
             data.forEach(function(d) {
               d.total = [];
               // initialize total array
