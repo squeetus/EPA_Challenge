@@ -92,11 +92,61 @@ exports.facility = function(req, res, next) {
     });
 };
 
+/*
+    return a list of facilities and the total aggregate usage
+*/
+exports.facilitiesTotalUsage = function(req, res, next) {
+    Facility
+        .aggregate([
+          {$project: {
+              tri_facility_id: 1,
+              usage: {$sum: "$total_usage"},
+            }
+          },
+          {$group: {
+              _id: '$tri_facility_id',
+              total: {$sum: "$usage"}
+              }
+          }
+        ])
+        .sort(
+          {total: -1}
+        )
+        .exec(function (err, data) {
+            if (err) return next(err);
+            if (!data)
+                return next("no data for facilities.");
+            res.json(data);
+    });
+};
+
 /************************************************
 
     API Endpoints for industry queries
 
 ************************************************/
+
+// mapreduce doesn't seem like a good approach:
+// exports.test = function(req, res, next) {
+//   var o = {};
+//   o.map = function() {
+//       emit(this.tri_facility_id, this.total_usage);
+//   };
+//   o.reduce = function(f, usage) {
+//       return 1;
+//   };
+//   o.out = {inline : 1};
+//   o.verbose = true;
+//
+//   Facility
+//       .mapReduce(o, function (err, data) {
+//         if (err) return next(err);
+//         if (!data)
+//            return next("no data for industries.");
+//         res.json(data);
+//       });
+//
+// };
 
 /*
     return a list of unique industries
@@ -150,29 +200,53 @@ exports.industriesTotalUsage = function(req, res, next) {
     return a list of industry sectors and the yearly total usage
 */
 exports.industriesUsage = function(req, res, next) {
+    var from = (req.query.from) ? req.query.from - 1986 : 0,
+      to = (req.query.to) ? (req.query.to - 1986) : 27;
+
+    // ensure range bounds for usage are reasonable
+    if( from < 0 || from > 27) from = 0;
+    if( to <= from || to > 27) to = 27;
+    to = to - from;
+
     Facility
         .aggregate([
+          // Project based on the range query
           {$project: {
               primary_naics: 1, primary_sic: 1,
               tri_facility_id: 1,
-              usage: {$sum: "$total_usage"},
+              // total_usage: 1,
+              "usage_subset": {$slice : ["$total_usage", from, to]}
             }
           },
           {$group: {
-              _id: '$primary_naics',
-              total: {$sum: "$usage"}
-              }
+             _id: "$primary_naics",
+             usage: {$push: "$usage_subset"} // hacky: push all facilities' total usage into group's total usage
+           }
           }
         ])
-        .sort(
-          {total: -1}
-        )
-        .exec(function (err, data) {
+        .exec(function(err, data) {
             if (err) return next(err);
             if (!data)
-                return next("no data for industries.");
+              return next("no data for industries.");
+
+            // compute total usage for each industry
+            // for each industry
+            data.forEach(function(d) {
+              d.total = [];
+              // initialize total array
+              for(var i = 0; i < d.usage[0].length; i++ )
+                d.total[i] = 0;
+
+              // for each facility's usage
+              d.usage.forEach(function(usage) {
+                for(var i = 0; i < usage.length; i++ )
+                  d.total[i] += usage[i];
+              });
+              delete d.usage;
+            });
+
             res.json(data);
-    });
+         });
 };
 
 /*

@@ -5,17 +5,42 @@ module.exports = function( app, handleError ) {
     res.send('Accessing Data!');
   });
 
-  app.get('/facilities', Facility.showFacilities, handleError);
-  app.get('/data/facilities', Facility.facilities, handleError);
+  /************************************************
 
+      Facility information
+
+  ************************************************/
+
+  ///////////////////
+  //////  API  //////
+  ///////////////////
+
+  // get specified facility data
+  app.get('/data/facilities/id/:fid', Facility.facility, handleError);
+  // get list of unique facilities
+  app.get('/data/facilities', Facility.facilities, handleError);
+  // get list of unique facilities and total usage (largest to smallest)
+  app.get('/data/facilities/totalUsage', Facility.facilitiesTotalUsage, handleError);
+
+  ///////////////////
+  //////  Views  ////
+  ///////////////////
+
+  app.get('/facilities', Facility.showFacilities, handleError);
   app.get('/facilities/:fid', Facility.showFacility, handleError);
-  app.get('/data/facilities/:fid', Facility.facility, handleError);
+
 
   /************************************************
 
       Industry information
 
   ************************************************/
+
+  // app.get('/data/test', Facility.test, handleError);
+
+  ///////////////////
+  //////  API  //////
+  ///////////////////
 
   // get list of unique industries
   app.get('/data/industries', Facility.industries, handleError);
@@ -26,4 +51,7 @@ module.exports = function( app, handleError ) {
   // get list of unique industries and total usage (largest to smallest)
   app.get('/data/industries/facilities', Facility.industriesFacilities, handleError);
 
+  ///////////////////
+  //////  Views  ////
+  ///////////////////
 };
