@@ -127,30 +127,31 @@ exports.facilitiesTotalUsage = function(req, res, next) {
 ************************************************/
 
 exports.test = function(req, res, next) {
-//   Facility
-//       .aggregate([
-//         {$match: {
-//             primary_naics:
-//           }
-//         },
-//         {$project: {
-//             primary_naics: 1, primary_sic: 1,
-//             tri_facility_id: 1,
-//             chemicals: "$chemicals"
-//           }
-//         },
-//       ])
-//       // .limit(10)
-//       .exec(function (err, data) {
-//           if (err) return next(err);
-//           if (!data)
-//               return next("no data for industries.");
-//           res.json(data);
-//   });
+  // Facility
+  //     .aggregate([
+  //       {$match: {
+  //           primary_naics:
+  //         }
+  //       },
+  //       {$project: {
+  //           primary_naics: 1, primary_sic: 1,
+  //           tri_facility_id: 1,
+  //           chemicals: "$chemicals"
+  //         }
+  //       },
+  //     ])
+  //     // .limit(10)
+  //     .exec(function (err, data) {
+  //         if (err) return next(err);
+  //         if (!data)
+  //             return next("no data for industries.");
+  //         res.json(data);
+  // });
 };
 
 /*
     return a list of unique industries
+    Route:  /data/industries
 */
 exports.industries = function(req, res, next) {
     Facility
@@ -171,14 +172,23 @@ exports.industries = function(req, res, next) {
 /*
     return a list of industry sectors and the total aggregate usage
     sorted largest to smallest by total usage over time
+    Route:  /data/industries/totalUsage
 */
 exports.industriesTotalUsage = function(req, res, next) {
+    var from = (req.query.from) ? req.query.from - 1986 : 0,
+      to = (req.query.to) ? (req.query.to - 1986) : 27;
+
+    // ensure range bounds for usage are reasonable
+    if( from < 0 || from > 27) from = 0;
+    if( to <= from || to > 27) to = 27;
+    to = to - from;
+
     Facility
         .aggregate([
           {$project: {
               primary_naics: 1, primary_sic: 1,
               tri_facility_id: 1,
-              usage: {$sum: "$total_usage"},
+              "usage": {$sum: {$slice : ["$total_usage", from, to]}}
             }
           },
           {$group: {
@@ -260,7 +270,8 @@ exports.industriesUsage = function(req, res, next) {
 };
 
 /*
-    return a list of industry sectors and the total aggregate usage
+    return a list of all facilities in each industry sector
+    Route:  /data/industries/facilities
 */
 exports.industriesFacilities = function(req, res, next) {
     Facility
