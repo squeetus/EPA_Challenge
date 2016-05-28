@@ -44,12 +44,15 @@ module.exports = function( app, handleError ) {
 
   // get list of unique industries
   app.get('/data/industries', Facility.industries, handleError);
+  // get facility data for a particular industry sector
+  app.get('/data/industries/naics/:naics', Facility.industry, handleError);
   // get list of unique industries and total usage (largest to smallest)
   app.get('/data/industries/totalUsage', Facility.industriesTotalUsage, handleError);
   // get list of unique industries and yearly usage (largest to smallest)
   app.get('/data/industries/usage', Facility.industriesUsage, handleError);
-  // get list of unique industries and total usage (largest to smallest)
+  // get list of unique facilities in each industry sector
   app.get('/data/industries/facilities', Facility.industriesFacilities, handleError);
+
 
   ///////////////////
   //////  Views  ////

@@ -127,10 +127,12 @@ exports.facilitiesTotalUsage = function(req, res, next) {
 ************************************************/
 
 exports.test = function(req, res, next) {
+  var from = (req.query.from) ? req.query.from - 1986 : 0,
+    to = (req.query.to) ? (req.query.to - 1986) : 27;
   // Facility
   //     .aggregate([
   //       {$match: {
-  //           primary_naics:
+  //           primary_naics: req.params.naics
   //         }
   //       },
   //       {$project: {
@@ -148,6 +150,49 @@ exports.test = function(req, res, next) {
   //         res.json(data);
   // });
 };
+
+/*
+    return facility data for a particular industry sector
+    Route:  /data/industries/naics/:naics
+*/
+exports.industry = function(req, res, next) {
+    var from = (req.query.from) ? req.query.from - 1986 : 0,
+      to = (req.query.to) ? (req.query.to - 1986) : 27;
+
+    // ensure range bounds for usage are reasonable
+    if( from < 0 || from > 27) from = 0;
+    if( to <= from || to > 27) to = 27;
+    to = to - from;
+
+    Facility
+        .aggregate([
+          {$match: {
+            primary_naics: +req.params.naics  // match industry sector
+            }
+          },
+          {$project: {
+            usage: "$total_usage",
+            chemicals: "$chemicals",
+            "total": {$sum: {$slice : ["$total_usage", from, to]}}
+            }
+          },
+          {$match: {
+            "total": {$gt : 0}  // ignore facilities with no usage
+            }
+          }
+        ])
+        .sort(
+          {total: -1}   // order the facilities by total usage, largest to smallest
+        )
+        .limit(200)
+        .exec(function (err, data) {
+            if (err) return next(err);
+            if (!data)
+                return next("no data for industries");
+            res.json(data);
+    });
+};
+
 
 /*
     return a list of unique industries
@@ -249,7 +294,7 @@ exports.industriesUsage = function(req, res, next) {
             if (!data)
               return next("no data for industries.");
 
-            // compute total usage for each industry
+            // compute yearly total usage for each industry
             //for each industry
             data.forEach(function(d) {
               d.total = [];
@@ -259,6 +304,7 @@ exports.industriesUsage = function(req, res, next) {
 
               // for each facility's usage
               d.usage.forEach(function(usage) {
+                // for each year
                 for(var i = 0; i < usage.length; i++ )
                   d.total[i] += usage[i];
               });
