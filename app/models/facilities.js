@@ -22,7 +22,7 @@ var Facility = new Schema ({
     primary_sic:        {type: Number, default: 0},
     primary_naics:      {type: Number, default: 0},
     total_usage:        {type: [Number], default: 0},
-    chemicals:          {}
+    chemicals:          []
     /* each element in the chemicals array will have the following attributes:
       cas: ''
       air: []
@@ -182,6 +182,17 @@ Facility.statics.modify = function( f, attrs ) {
     for( var i = 0; i < 27; i++)
       f.total_usage[i] += f.chemicals[attrs[27]].total_usage[i];
   }
+};
+
+Facility.statics.finalizeChemicals = function( f ) {
+  var chemicals = [];
+  for (var chem in f.chemicals) {
+    if (f.chemicals.hasOwnProperty(chem)) {
+      chemicals.push({chemical: chem, usage: f.chemicals[chem]});
+    }
+  }
+  f.chemicals = chemicals;
+  console.log(f);
 };
 
 

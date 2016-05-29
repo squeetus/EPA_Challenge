@@ -257,6 +257,7 @@ var finalize = function() {
       chems = [];
   // convert collection of facilities and chemicals into arrays
   for( var f in facilities ) {
+    Facility.finalizeChemicals( facilities[ f ] );
     facs.push( facilities[ f ] );
   }
   // for( var c in chemicals ) {
