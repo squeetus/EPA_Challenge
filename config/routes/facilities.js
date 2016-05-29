@@ -21,6 +21,8 @@ module.exports = function( app, handleError ) {
   app.get('/data/facilities', Facility.facilities, handleError);
   // get list of unique facilities and total usage (largest to smallest)
   app.get('/data/facilities/totalUsage', Facility.facilitiesTotalUsage, handleError);
+  // get usage of facilities for a given set of chemicals
+  app.get('/data/facilities/chemicals/', Facility.chemicalUsage, handleError);
 
   ///////////////////
   //////  Views  ////
@@ -36,7 +38,7 @@ module.exports = function( app, handleError ) {
 
   ************************************************/
 
-  app.get('/data/test', Facility.test, handleError);
+  // app.get('/data/test', Facility.test, handleError);
 
   ///////////////////
   //////  API  //////

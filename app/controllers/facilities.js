@@ -120,36 +120,78 @@ exports.facilitiesTotalUsage = function(req, res, next) {
     });
 };
 
+/*
+    return a list of facilities and the yearly aggregate usage for the specified array of chemical IDs
+    Route: /data/facilities/chemicals/
+*/
+exports.chemicalUsage = function(req, res, next) {
+  var from = (req.query.from) ? req.query.from - 1986 : 0,
+    to = (req.query.to) ? (req.query.to - 1986) : 27,
+    chem = (req.query.chems) ? req.query.chems.split(',') : [];
+
+  // ensure range bounds for usage are reasonable
+  if( from < 0 || from > 27) from = 0;
+  if( to <= from || to > 27) to = 27;
+
+  Facility
+      .aggregate([
+        {$match: {
+            chemicals: {
+               $elemMatch: { chemical : {$in : chem } } // find facilities with particular chemical usage
+             }
+          }
+        },
+        {$project: {
+            primary_naics: 1, primary_sic: 1,
+            tri_facility_id: 1,
+            chemicals: {$filter: {  // only project the relevant chemicals
+                input: '$chemicals',
+                as: 'c',
+                cond: {$in : ['$$c.chemical', chem ] }  //https://jira.mongodb.org/browse/SERVER-6146
+              }
+            }
+          }
+        },
+        {$project: {
+            tri_facility_id: 1,
+            usage: "$chemicals.usage.total_usage", // grab out total usage** (depends if we want overall vs breakdown)
+          }
+        }
+      ])
+      .exec(function (err, data) {
+          if (err) return next(err);
+          if (!data)
+              return next("no data for industries.");
+
+          // compute yearly total usage for the specific chemicals for each facility
+          //for each facility
+          data.forEach(function(d) {
+            d.total = [];
+            // initialize total array
+            for(var i = 0; i < d.usage[0].length; i++ )
+              d.total[i] = 0;
+
+            // for each chemical's usage
+            d.usage.forEach(function(usage) {
+              // for each year
+              for(var i = 0; i < usage.length; i++ )
+                d.total[i] += usage[i];
+            });
+            delete d.usage;
+            d.total = d.total.slice(from, to);
+
+          });
+
+          res.json(data);
+  });
+};
+
+
 /************************************************
 
     API Endpoints for industry queries
 
 ************************************************/
-
-exports.test = function(req, res, next) {
-  var from = (req.query.from) ? req.query.from - 1986 : 0,
-    to = (req.query.to) ? (req.query.to - 1986) : 27;
-  // Facility
-  //     .aggregate([
-  //       {$match: {
-  //           primary_naics: req.params.naics
-  //         }
-  //       },
-  //       {$project: {
-  //           primary_naics: 1, primary_sic: 1,
-  //           tri_facility_id: 1,
-  //           chemicals: "$chemicals"
-  //         }
-  //       },
-  //     ])
-  //     // .limit(10)
-  //     .exec(function (err, data) {
-  //         if (err) return next(err);
-  //         if (!data)
-  //             return next("no data for industries.");
-  //         res.json(data);
-  // });
-};
 
 /*
     return facility data for a particular industry sector
