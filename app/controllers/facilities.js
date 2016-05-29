@@ -12,6 +12,7 @@ var mongoose = require('mongoose'),
 
 /*
     Get all facilities
+    Route: /data/facilities
 */
 exports.facilities = function(req, res, next) {
     var limit = (req.query.limit && req.query.limit < 55000) ? +req.query.limit : 10,
@@ -78,6 +79,7 @@ exports.showFacility = function(req, res, next) {
 
 /*
     API endpoint for a single specified facility
+    Route: /data/facilities/id/:fid
 */
 exports.facility = function(req, res, next) {
     Facility
@@ -94,6 +96,7 @@ exports.facility = function(req, res, next) {
 
 /*
     return a list of facilities and the total aggregate usage
+    Route: /data/facilities/usage/total
 */
 exports.facilitiesTotalUsage = function(req, res, next) {
     Facility
@@ -122,7 +125,7 @@ exports.facilitiesTotalUsage = function(req, res, next) {
 
 /*
     return a list of facilities and the yearly aggregate usage for the specified array of chemical IDs
-    Route: /data/facilities/chemicals/
+    Route: /data/facilities/usage/chemicals
 */
 exports.chemicalUsage = function(req, res, next) {
   var from = (req.query.from) ? req.query.from - 1986 : 0,
@@ -259,7 +262,7 @@ exports.industries = function(req, res, next) {
 /*
     return a list of industry sectors and the total aggregate usage
     sorted largest to smallest by total usage over time
-    Route:  /data/industries/totalUsage
+    Route:  /data/industries/usage/total
 */
 exports.industriesTotalUsage = function(req, res, next) {
     var from = (req.query.from) ? req.query.from - 1986 : 0,
@@ -296,8 +299,8 @@ exports.industriesTotalUsage = function(req, res, next) {
 };
 
 /*
-    return a list of facilities and the yearly aggregate usage for the specified array of chemical IDs
-    Route: /data/facilities/chemicals/
+    return a list of industries and the yearly aggregate usage for the specified array of chemical IDs
+    Route: /data/industries/usage/chemicals/
 */
 exports.industriesYearlyTotalChemicalUsage = function(req, res, next) {
   var from = (req.query.from) ? req.query.from - 1986 : 0,
@@ -375,7 +378,7 @@ exports.industriesYearlyTotalChemicalUsage = function(req, res, next) {
 /*
     return a list of industry sectors and the yearly total usage
     ordered from largest to smallest
-    Route:  /data/industries/usage
+    Route:  /data/industries/usage/yearly
 */
 exports.industriesYearlyTotalUsage = function(req, res, next) {
     var from = (req.query.from) ? req.query.from - 1986 : 0,

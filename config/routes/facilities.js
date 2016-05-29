@@ -19,10 +19,11 @@ module.exports = function( app, handleError ) {
   app.get('/data/facilities/id/:fid', Facility.facility, handleError);
   // get list of unique facilities
   app.get('/data/facilities', Facility.facilities, handleError);
+  
   // get list of unique facilities and total usage (largest to smallest)
-  app.get('/data/facilities/totalUsage', Facility.facilitiesTotalUsage, handleError);
+  app.get('/data/facilities/usage/total', Facility.facilitiesTotalUsage, handleError);
   // get usage of facilities for a given set of chemicals
-  app.get('/data/facilities/chemicals/', Facility.chemicalUsage, handleError);
+  app.get('/data/facilities/usage/chemicals/', Facility.chemicalUsage, handleError);
 
   ///////////////////
   //////  Views  ////
@@ -48,12 +49,14 @@ module.exports = function( app, handleError ) {
   app.get('/data/industries', Facility.industries, handleError);
   // get facility data for a particular industry sector
   app.get('/data/industries/naics/:naics', Facility.industry, handleError);
+
   // get list of unique industries and total usage (largest to smallest)
-  app.get('/data/industries/totalUsage', Facility.industriesTotalUsage, handleError);
+  app.get('/data/industries/usage/total', Facility.industriesTotalUsage, handleError);
   // get list of unique industries and yearly usage (largest to smallest)
-  app.get('/data/industries/yearlyUsage', Facility.industriesYearlyTotalUsage, handleError);
+  app.get('/data/industries/usage/yearly', Facility.industriesYearlyTotalUsage, handleError);
   // get list of unique industries and yearly total usage for a specified subset of chemicals
-  app.get('/data/industries/chemicalUsage', Facility.industriesYearlyTotalChemicalUsage, handleError);
+  app.get('/data/industries/usage/chemicals', Facility.industriesYearlyTotalChemicalUsage, handleError);
+
   // get list of unique facilities in each industry sector
   app.get('/data/industries/facilities', Facility.industriesFacilities, handleError);
 
