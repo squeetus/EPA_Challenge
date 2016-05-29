@@ -296,11 +296,88 @@ exports.industriesTotalUsage = function(req, res, next) {
 };
 
 /*
+    return a list of facilities and the yearly aggregate usage for the specified array of chemical IDs
+    Route: /data/facilities/chemicals/
+*/
+exports.industriesYearlyTotalChemicalUsage = function(req, res, next) {
+  var from = (req.query.from) ? req.query.from - 1986 : 0,
+    to = (req.query.to) ? (req.query.to - 1986) : 27,
+    chem = (req.query.chems) ? req.query.chems.split(',') : [];
+
+  console.log(from, to);
+  // ensure range bounds for usage are reasonable
+  if( from < 0 || from > 27) from = 0;
+  if( to <= from || to > 27) to = 27;
+
+  Facility
+      .aggregate([
+        {$match: {
+            chemicals: {
+               $elemMatch: { chemical : {$in : chem } } // find facilities with particular chemical usage
+             }
+          }
+        },
+        {$project: {
+            primary_naics: 1, primary_sic: 1,
+            tri_facility_id: 1,
+            chemicals: {$filter: {  // only project the relevant chemicals
+                input: '$chemicals',
+                as: 'c',
+                cond: {$in : ['$$c.chemical', chem ] }  //https://jira.mongodb.org/browse/SERVER-6146
+              }
+            }
+          }
+        },
+        {$project: {
+            tri_facility_id: 1,
+            primary_naics: 1,
+            usage: "$chemicals.usage.total_usage", // grab out total usage for each chemical** (depends if we want overall vs breakdown)
+          }
+        },
+        {$group: {
+          _id: "$primary_naics",    // group by industry sector
+          usage: {$push: "$usage"}  // store all relevant chemical usage from each facility for later aggregation
+          }
+        }
+      ])
+      .exec(function (err, data) {
+          if (err) return next(err);
+          if (!data)
+              return next("no data for industries.");
+
+          // compute yearly total usage for the specified chemicals for each industry
+          //for each industry
+          data.forEach(function(d) {
+            d.total = [];
+            // initialize total array
+            for(var i = 0; i < d.usage[0][0].length; i++ )
+              d.total[i] = 0;
+
+            // for each facility's usage
+            d.usage.forEach(function(usage) {
+              // for each chemical's usage
+              usage.forEach(function(usage) {
+                // for each year
+                for(var i = 0; i < usage.length; i++ )
+                  d.total[i] += usage[i];
+              });
+
+            });
+            delete d.usage;
+            d.total = d.total.slice(from, to);
+          });
+
+          res.json(data);
+  });
+};
+
+
+/*
     return a list of industry sectors and the yearly total usage
     ordered from largest to smallest
     Route:  /data/industries/usage
 */
-exports.industriesUsage = function(req, res, next) {
+exports.industriesYearlyTotalUsage = function(req, res, next) {
     var from = (req.query.from) ? req.query.from - 1986 : 0,
       to = (req.query.to) ? (req.query.to - 1986) : 27;
 
