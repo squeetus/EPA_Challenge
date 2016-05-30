@@ -6,39 +6,9 @@ var mongoose = require('mongoose'),
 
 /************************************************
 
-    API Endpoints for Facility queries
+    Views for Facility queries
 
 ************************************************/
-
-/*
-    Get all facilities
-    Route: /data/facilities
-*/
-exports.facilities = function(req, res, next) {
-    var limit = (req.query.limit && req.query.limit < 55000) ? +req.query.limit : 10,
-        skip = (req.query.skip) ? +req.query.skip : 0;
-
-    Facility
-        .find({})
-        .sort( { facility_name: 1 } )
-        .skip(skip)
-        .limit(limit)
-        .exec(function (err, data) {
-            if (err) return next(err);
-            if (!data)
-                return next("no data");
-            res.json(data);
-    });
-};
-
-/*
-    Generate a visualization for some number of facilities
-*/
-exports.showFacilities = function(req, res, next) {
-    var limit = (req.query.limit && req.query.limit < 1000) ? req.query.limit : 10,
-        page = (req.query.page) ? req.query.page : 1;
-    res.render("facilities", {limit: limit, page: page});
-};
 
 /*
     Generate a visualization for a particular facility
@@ -74,6 +44,44 @@ exports.showFacility = function(req, res, next) {
                 res.send(window.document.documentElement.innerHTML);
               }
             );
+    });
+};
+
+/*
+    Generate a visualization for some number of facilities
+*/
+exports.showFacilities = function(req, res, next) {
+    var limit = (req.query.limit && req.query.limit < 1000) ? req.query.limit : 10,
+        page = (req.query.page) ? req.query.page : 1;
+    res.render("facilities", {limit: limit, page: page});
+};
+
+
+/************************************************
+
+    API Endpoints for Facility queries
+
+************************************************/
+
+
+/*
+    Get all facilities
+    Route: /data/facilities
+*/
+exports.facilities = function(req, res, next) {
+    var limit = (req.query.limit && req.query.limit < 55000) ? +req.query.limit : 10,
+        skip = (req.query.skip) ? +req.query.skip : 0;
+
+    Facility
+        .find({})
+        .sort( { facility_name: 1 } )
+        .skip(skip)
+        .limit(limit)
+        .exec(function (err, data) {
+            if (err) return next(err);
+            if (!data)
+                return next("no data");
+            res.json(data);
     });
 };
 
@@ -238,7 +246,6 @@ exports.industry = function(req, res, next) {
     });
 };
 
-
 /*
     return a list of unique industries
     Route:  /data/industries
@@ -373,7 +380,6 @@ exports.industriesYearlyTotalChemicalUsage = function(req, res, next) {
           res.json(data);
   });
 };
-
 
 /*
     return a list of industry sectors and the yearly total usage

@@ -19,7 +19,7 @@ module.exports = function( app, handleError ) {
   app.get('/data/facilities/id/:fid', Facility.facility, handleError);
   // get list of unique facilities
   app.get('/data/facilities', Facility.facilities, handleError);
-  
+
   // get list of unique facilities and total usage (largest to smallest)
   app.get('/data/facilities/usage/total', Facility.facilitiesTotalUsage, handleError);
   // get usage of facilities for a given set of chemicals

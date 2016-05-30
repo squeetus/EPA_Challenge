@@ -1,11 +1,35 @@
 var mongoose = require('mongoose'),
     Chemical = mongoose.model('Chemical');
 
+/************************************************
+
+    Views for Facility queries
+
+************************************************/
+
 /*
-  API endpoint for some number of chemicals
+    Generate a visualization for some number of chemicals
+*/
+exports.showChemicals = function(req, res, next) {
+    var limit = (req.query.limit && req.query.limit < 100) ? req.query.limit : 10,
+        page = (req.query.page) ? req.query.page : 1;
+
+    res.render("chemicals", {limit: limit, page: page});
+};
+
+/************************************************
+
+    API Endpoints for Chemical queries
+
+************************************************/
+
+
+/*
+    Get chemical data for all chemicals
+    Route: /data/chemicals
 */
 exports.chemicals = function(req, res, next) {
-    var limit = (req.query.limit && req.query.limit < 100) ? req.query.limit : 10,
+    var limit = (req.query.limit) ? req.query.limit : 1000,
         skip = (req.query.skip) ? req.query.skip : 0;
     Chemical
         .find({})
@@ -21,7 +45,8 @@ exports.chemicals = function(req, res, next) {
 };
 
 /*
-  API endpoint for a particular chemical (by cas number)
+    Get data related to a particular chemical (by cas number)
+    Route: /data/chemical/cas/:cas
 */
 exports.chemical = function(req, res, next) {
     Chemical
@@ -34,14 +59,4 @@ exports.chemical = function(req, res, next) {
                 return next("no data for chemical with cas " + req.params.cas);
             res.json(data);
     });
-};
-
-/*
-    Generate a visualization for some number of chemicals
-*/
-exports.showChemicals = function(req, res, next) {
-    var limit = (req.query.limit && req.query.limit < 100) ? req.query.limit : 10,
-        page = (req.query.page) ? req.query.page : 1;
-
-    res.render("chemicals", {limit: limit, page: page});
 };
