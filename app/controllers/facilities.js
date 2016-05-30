@@ -86,7 +86,7 @@ exports.facilities = function(req, res, next) {
 };
 
 /*
-    API endpoint for a single specified facility
+    Get a single specified facility
     Route: /data/facilities/id/:fid
 */
 exports.facility = function(req, res, next) {
@@ -103,7 +103,7 @@ exports.facility = function(req, res, next) {
 };
 
 /*
-    return a list of facilities and the total aggregate usage
+    Return a list of facilities and their total aggregate chemical usage
     Route: /data/facilities/usage/total
 */
 exports.facilitiesTotalUsage = function(req, res, next) {
@@ -132,7 +132,7 @@ exports.facilitiesTotalUsage = function(req, res, next) {
 };
 
 /*
-    return a list of facilities and the yearly aggregate usage for the specified array of chemical IDs
+    Return a list of facilities and their yearly aggregate usage for the specified array of chemical IDs
     Route: /data/facilities/usage/chemicals
 */
 exports.chemicalUsage = function(req, res, next) {
@@ -205,7 +205,7 @@ exports.chemicalUsage = function(req, res, next) {
 ************************************************/
 
 /*
-    return facility data for a particular industry sector
+    Return facility data for a particular industry sector
     Route:  /data/industries/naics/:naics
 */
 exports.industry = function(req, res, next) {
@@ -247,7 +247,7 @@ exports.industry = function(req, res, next) {
 };
 
 /*
-    return a list of unique industries
+    Return a list of unique industries
     Route:  /data/industries
 */
 exports.industries = function(req, res, next) {
@@ -267,8 +267,8 @@ exports.industries = function(req, res, next) {
 };
 
 /*
-    return a list of industry sectors and the total aggregate usage
-    sorted largest to smallest by total usage over time
+    Return a list of industry sectors and their total aggregate usage
+      (sorted largest to smallest by total usage over time)
     Route:  /data/industries/usage/total
 */
 exports.industriesTotalUsage = function(req, res, next) {
@@ -306,7 +306,7 @@ exports.industriesTotalUsage = function(req, res, next) {
 };
 
 /*
-    return a list of industries and the yearly aggregate usage for the specified array of chemical IDs
+    Return a list of industries and their yearly aggregate usage for the specified array of chemical IDs
     Route: /data/industries/usage/chemicals/
 */
 exports.industriesYearlyTotalChemicalUsage = function(req, res, next) {
@@ -382,8 +382,8 @@ exports.industriesYearlyTotalChemicalUsage = function(req, res, next) {
 };
 
 /*
-    return a list of industry sectors and the yearly total usage
-    ordered from largest to smallest
+    Return a list of industry sectors and their yearly total usage
+      (ordered from largest to smallest)
     Route:  /data/industries/usage/yearly
 */
 exports.industriesYearlyTotalUsage = function(req, res, next) {
@@ -444,7 +444,7 @@ exports.industriesYearlyTotalUsage = function(req, res, next) {
 };
 
 /*
-    return a list of all facilities in each industry sector
+    Return a list of all facilities in each industry sector
     Route:  /data/industries/facilities
 */
 exports.industriesFacilities = function(req, res, next) {
