@@ -21,6 +21,8 @@ module.exports = function( app, handleError ) {
 
   // get list of unique industries and total usage (largest to smallest)
   app.get('/data/industries/usage/total', Industry.industriesTotalUsage, handleError);
+  // get list of unique facilities and total usage (largest to smallest) for a particular industry
+  app.get('/data/industries/naics/:naics/usage/total', Industry.industryTotalUsage, handleError);
   // get list of unique industries and yearly usage (largest to smallest)
   app.get('/data/industries/usage/yearly', Industry.industriesYearlyTotalUsage, handleError);
   // get list of unique industries and yearly total usage for a specified subset of chemicals

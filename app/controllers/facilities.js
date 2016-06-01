@@ -168,7 +168,7 @@ exports.chemicalUsage = function(req, res, next) {
         {$project: {
             tri_facility_id: 1,
             usage: "$chemicals.usage.total_usage", // grab out total usage** (depends if we want overall vs breakdown)
-            // stuff: {$cond: [ use, "$chemicals.usage.air", 0 ]}
+            // stuff: {$sum: [ use, "$chemicals.usage.air", 0 ]}
           }
         }
       ])
@@ -179,23 +179,23 @@ exports.chemicalUsage = function(req, res, next) {
               return next("no data for industries.");
 
           // compute yearly total usage for the specific chemicals for each facility
-          //for each facility
-          // data.forEach(function(d) {
-          //   d.total = [];
-          //   // initialize total array
-          //   for(var i = 0; i < d.usage[0].length; i++ )
-          //     d.total[i] = 0;
-          //
-          //   // for each chemical's usage
-          //   d.usage.forEach(function(usage) {
-          //     // for each year
-          //     for(var i = 0; i < usage.length; i++ )
-          //       d.total[i] += usage[i];
-          //   });
-          //   delete d.usage;
-          //   d.total = d.total.slice(from, to);
-          //
-          // });
+          // for each facility
+          data.forEach(function(d) {
+            d.total = [];
+            // initialize total array
+            for(var i = 0; i < d.usage[0].length; i++ )
+              d.total[i] = 0;
+
+            // for each chemical's usage
+            d.usage.forEach(function(usage) {
+              // for each year
+              for(var i = 0; i < usage.length; i++ )
+                d.total[i] += usage[i];
+            });
+            delete d.usage;
+            d.total = d.total.slice(from, to);
+
+          });
 
           res.json(data);
   });

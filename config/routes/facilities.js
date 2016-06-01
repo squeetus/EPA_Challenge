@@ -25,7 +25,6 @@ module.exports = function( app, handleError ) {
   // get usage of facilities for a given set of chemicals
   app.get('/data/facilities/usage/chemicals/', Facility.chemicalUsage, handleError);
 
-
   // get list of top treatment method counts
   app.get('/data/methods', Facility.methods, handleError);
 

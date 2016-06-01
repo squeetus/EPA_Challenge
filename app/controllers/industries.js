@@ -88,7 +88,7 @@ exports.industriesTotalUsage = function(req, res, next) {
     Facility
         .aggregate([
           {$project: {
-              primary_naics: 1, primary_sic: 1,
+              primary_naics: 1,
               tri_facility_id: 1,
               "usage": {$sum: {$slice : ["$total_usage", from, to]}}
             }
@@ -102,6 +102,50 @@ exports.industriesTotalUsage = function(req, res, next) {
         .sort(
           {total: -1}
         )
+        .exec(function (err, data) {
+            if (err) return next(err);
+            if (!data)
+                return next("no data for industries.");
+            res.json(data);
+    });
+};
+
+/*
+    Return a list of unique facilities from a particular industry and their total aggregate and yearly usage
+      (sorted largest to smallest by total usage over time)
+    Route:  /data/industries/naics/:naics/usage/total
+*/
+exports.industryTotalUsage = function(req, res, next) {
+    var from = (req.query.from) ? req.query.from - 1986 : 0,
+      to = (req.query.to) ? (req.query.to - 1986) : 27,
+      limit = (req.query.limit) ? +req.query.limit : 100,
+      skip = (req.query.skip) ? +req.query.skip : 0;
+
+    // ensure range bounds for usage are reasonable
+    if( from < 0 || from > 27) from = 0;
+    if( to <= from || to > 27) to = 27;
+    to = to - from;
+
+    Facility
+        .aggregate([
+          {$project: {
+              primary_naics: +req.params.naics,
+              tri_facility_id: 1,
+              "total": {$sum: {$slice : ["$total_usage", from, to]}},
+              "yearly": {$slice : ["$total_usage", from, to]}
+            }
+          },
+          // {$group: {
+          //     _id: '$primary_naics',
+          //     total: {$sum: "$usage"}
+          //     }
+          // }
+        ])
+        .sort(
+          {total: -1}
+        )
+        .limit(limit)
+        .skip(skip)
         .exec(function (err, data) {
             if (err) return next(err);
             if (!data)
