@@ -200,3 +200,47 @@ exports.chemicalUsage = function(req, res, next) {
           res.json(data);
   });
 };
+
+exports.methods = function(req, res, next) {
+  Facility
+      .aggregate([
+        {$match: {
+            chemicals: {
+               $elemMatch: { methods: {$exists: true} } // find facilities with any treatment method
+             }
+          }
+        },
+        {$project:{
+            primary_naics: 1,
+            tri_facility_id: 1,
+            chemicals: {$filter: {  // only project the relevant chemicals
+                input: '$chemicals',
+                as: 'c',
+                cond: { $gte : [ '$$c.methods', null ] }  // filter chemicals to include only those with treatment methods
+              }
+            }
+          }
+        },
+        {$project: {
+            primary_naics: 1,
+            tri_facility_id: 1,
+            // chemicals: 1
+            chemicals: "$chemicals.chemical",
+            methods: "$chemicals.methods"
+          }
+        },
+        // {$project: {
+        //     tri_facility_id: 1,
+        //     usage: "$chemicals.usage.total_usage", // grab out total usage** (depends if we want overall vs breakdown)
+        //     // stuff: {$cond: [ use, "$chemicals.usage.air", 0 ]}
+        //   }
+        // }
+      ])
+      .limit(1000)
+      .exec(function (err, data) {
+          if (err) return next(err);
+          if (!data)
+              return next("no data for treatment methods.");
+          res.json(data);
+  });
+};
