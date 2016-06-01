@@ -128,19 +128,19 @@ exports.industryTotalUsage = function(req, res, next) {
 
     Facility
         .aggregate([
+          {$match: {
+            primary_naics: +req.params.naics,
+            }
+          },
           {$project: {
-              primary_naics: +req.params.naics,
+              primary_naics: 1,
               tri_facility_id: 1,
+              facility_name: 1,
               loc: 1,
               "total": {$sum: {$slice : ["$total_usage", from, to]}},
               "yearly": {$slice : ["$total_usage", from, to]}
             }
-          },
-          // {$group: {
-          //     _id: '$primary_naics',
-          //     total: {$sum: "$usage"}
-          //     }
-          // }
+          }
         ])
         .sort(
           {total: -1}
