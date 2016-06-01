@@ -23,7 +23,8 @@ var Facility = new Schema ({
     primary_naics:      {type: Number, default: 0},
     total_usage:        {type: [Number], default: 0},
     chemicals:          []
-    /* each element in the chemicals array will have the following attributes:
+    /*
+      - each element in the chemicals array will have the following attributes:
       cas: ''
       air: []
       water: []
@@ -37,6 +38,11 @@ var Facility = new Schema ({
       off-site_treatment: []
       off-site_potws: []
       total_usage: []
+      methods: []
+          - each element in the methods array will have the following attributes:
+          method: ''  // the method of treatment (such as A03 for scrubber)
+          years: []   // the count of years in which scrubbers were present (for this chemical at this facility)
+
      */
 });
 
@@ -187,13 +193,35 @@ Facility.statics.modify = function( f, attrs ) {
 Facility.statics.finalizeChemicals = function( f ) {
   var chemicals = [];
   for (var chem in f.chemicals) {
+
     if (f.chemicals.hasOwnProperty(chem)) {
-      chemicals.push({chemical: chem, usage: f.chemicals[chem]});
+      // rebox the methods object to an array
+      if(f.chemicals[chem].methods) {
+        var methods = [];
+        for( var m in f.chemicals[chem].methods) {
+          if (f.chemicals[chem].methods.hasOwnProperty(m))
+            methods.push({method: m, count: f.chemicals[chem].methods[m] });
+        }
+        delete f.chemicals[chem].methods;
+
+        chemicals.push({chemical: chem, usage: f.chemicals[chem], "methods": methods});
+      }
+      else
+        chemicals.push({chemical: chem, usage: f.chemicals[chem]});
+
+      // console.log(chemicals);
     }
+
   }
   f.chemicals = chemicals;
-  console.log(f);
 };
 
+/*
+    Add a treatment/recovery/recycling method to a facility
+*/
+Facility.statics.addMethod = function( f, attrs ) {
+  console.log(f, attrs);
+  // refactor to put logic here?
+};
 
 mongoose.model('Facility', Facility);

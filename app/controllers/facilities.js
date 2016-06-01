@@ -69,7 +69,7 @@ exports.showFacilities = function(req, res, next) {
     Route: /data/facilities
 */
 exports.facilities = function(req, res, next) {
-    var limit = (req.query.limit && req.query.limit < 55000) ? +req.query.limit : 10,
+    var limit = (req.query.limit) ? +req.query.limit : 100,
         skip = (req.query.skip) ? +req.query.skip : 0;
 
     Facility
@@ -144,6 +144,8 @@ exports.chemicalUsage = function(req, res, next) {
   if( from < 0 || from > 27) from = 0;
   if( to <= from || to > 27) to = 27;
 
+  var use = false;
+
   Facility
       .aggregate([
         {$match: {
@@ -166,9 +168,11 @@ exports.chemicalUsage = function(req, res, next) {
         {$project: {
             tri_facility_id: 1,
             usage: "$chemicals.usage.total_usage", // grab out total usage** (depends if we want overall vs breakdown)
+            // stuff: {$cond: [ use, "$chemicals.usage.air", 0 ]}
           }
         }
       ])
+      // .limit(10)
       .exec(function (err, data) {
           if (err) return next(err);
           if (!data)
@@ -176,22 +180,22 @@ exports.chemicalUsage = function(req, res, next) {
 
           // compute yearly total usage for the specific chemicals for each facility
           //for each facility
-          data.forEach(function(d) {
-            d.total = [];
-            // initialize total array
-            for(var i = 0; i < d.usage[0].length; i++ )
-              d.total[i] = 0;
-
-            // for each chemical's usage
-            d.usage.forEach(function(usage) {
-              // for each year
-              for(var i = 0; i < usage.length; i++ )
-                d.total[i] += usage[i];
-            });
-            delete d.usage;
-            d.total = d.total.slice(from, to);
-
-          });
+          // data.forEach(function(d) {
+          //   d.total = [];
+          //   // initialize total array
+          //   for(var i = 0; i < d.usage[0].length; i++ )
+          //     d.total[i] = 0;
+          //
+          //   // for each chemical's usage
+          //   d.usage.forEach(function(usage) {
+          //     // for each year
+          //     for(var i = 0; i < usage.length; i++ )
+          //       d.total[i] += usage[i];
+          //   });
+          //   delete d.usage;
+          //   d.total = d.total.slice(from, to);
+          //
+          // });
 
           res.json(data);
   });

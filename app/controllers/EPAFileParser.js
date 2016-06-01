@@ -194,7 +194,7 @@ exports.readFiles = function(  ) {
     rs.on('error', function( e ) {
       if ( e.code === 'ENOENT' ) {
         console.log( 'File not found: ', e.path );
-        finalize();
+        // finalize();
         return;
       } else {
         throw e;
@@ -228,14 +228,14 @@ exports.readFiles = function(  ) {
         }
       }
 
-      // /* Process Chemical */
-      // // create new chemical if it doesn't exist in chemical map
-      // if( chemicals[ splitLine[ 27 ] ] === undefined ) {
-      //   chemicals[ splitLine[ 27 ] ] = {};
-      //   Chemical.construct( chemicals[ splitLine[ 27 ] ], splitLine );
-      // } else {  // update existing chemical
-      //   Chemical.modify( chemicals[ splitLine[ 27 ] ], splitLine );
-      // }
+      /* Process Chemical */
+      // create new chemical if it doesn't exist in chemical map
+      if( chemicals[ splitLine[ 27 ] ] === undefined ) {
+        chemicals[ splitLine[ 27 ] ] = {};
+        Chemical.construct( chemicals[ splitLine[ 27 ] ], splitLine );
+      } else {  // update existing chemical
+        Chemical.modify( chemicals[ splitLine[ 27 ] ], splitLine );
+      }
     });
 
     /* Handle end of file condition */
@@ -243,12 +243,137 @@ exports.readFiles = function(  ) {
       console.log( "fin: ", i, " lines from ", fileNumber);
       console.log( "unique facilities: ", Object.keys(facilities).length);
       console.log( "unique chemicals: ", Object.keys(chemicals).length);
+
+      /* Read the relevant Form R file for scrubber (etc) data */
+      exports.readFormRFiles(fileNumber);
       parseFile( ++fileNumber );
     });
   };  // parse file
 
   // read all TRI Basic files one by one, aggregating info by facility and chemical
   parseFile( 1987 );
+
+};
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+      R E A D   F O R M - R   F I L E S
+
+      readFormRFiles() attempts to opens and parse all TRI Form R tsv files
+*/
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+exports.readFormRFiles = function( fileNumber ) {
+
+  /*
+   local method to parse a particular TRI Basic file
+  */
+  var parseFile = function( fileNumber ) {
+    console.log("\n\nStarting Form R: ", fileNumber);
+    var attrs = [], // count the number of attributes in each record
+        i = 0,
+        rs = fs.createReadStream( 'data/FormR/US_2b_' + fileNumber + '_v13.txt'),
+        rl = readline.createInterface({
+          input: rs
+        });
+
+    /* Handle error from fs.createReadStream. File not found. */
+    rs.on('error', function( e ) {
+      if ( e.code === 'ENOENT' ) {
+        console.log( 'File not found: ', e.path );
+        // finalize();
+        return;
+      } else {
+        throw e;
+      }
+    });
+
+    /* Read and handle each line one by one */
+    rl.on('line', function( line ) {
+      if(i++ === 0)
+        return;
+      var flag = false,
+        splitLine = line.split("\t"),
+        fID, cas,
+        wasteStreams = {
+          "A": true,
+          "W": true,
+          "L": true,
+          "S": true
+        };
+
+      fID = splitLine[2];   // get tri_facility_id
+      cas = splitLine[41];  // get cas number
+
+      while(cas.charAt(0) == '0') cas = cas.substring(1); // trim 0s from beginning of cas
+
+      // ensure facility and chemical exist
+      // if( !facilities[ fID ] ) console.log(fID);
+      // if( !chemicals[ cas ] ) console.log( fID, cas, facilities[ fID ], chemicals[ cas ] );
+      if( facilities[ fID ] && facilities[ fID ].chemicals[ cas ] ) {
+
+          // ensure at least one method exists
+          for( var k = 62; k < 120; k += 12 ) {
+            // check if a waste stream exists
+      			if( wasteStreams[ splitLine[ k ] ] ) {
+              // look for a treatment method
+              for( var j = k+1; j < k + 8 ; j++ ) {
+       					if( ( splitLine[ j ] ) && splitLine[ j ].charAt( 0 ) == 'A'  ) {  // only look for A01-A07
+
+                  // Handle facility model
+                  // if the chemical does not have a methods attribute, create it and add the current method
+                  if( !facilities[ fID ].chemicals[ cas ].methods ) {
+                    facilities[ fID ].chemicals[ cas ].methods = {};
+                    facilities[ fID ].chemicals[ cas ].methods[ splitLine[ j ] ] = {};
+                    facilities[ fID ].chemicals[ cas ].methods[ splitLine[ j ] ] = getBlankArray();
+                    facilities[ fID ].chemicals[ cas ].methods[ splitLine[ j ] ][fileNumber - 1987 ] = 1;
+
+                    // set up a total scrubber usage
+                    facilities[ fID ].chemicals[ cas ].methods.total = {};
+                    facilities[ fID ].chemicals[ cas ].methods.total = getBlankArray();
+                    facilities[ fID ].chemicals[ cas ].methods.total[fileNumber - 1987 ] = 1;
+
+                  // if the chemical has a methods attribute but not the relevant current method
+                  } else if( !facilities[ fID ].chemicals[ cas ].methods[  splitLine[ j ] ] ) {
+                    facilities[ fID ].chemicals[ cas ].methods[ splitLine[ j ] ] = {};
+                    facilities[ fID ].chemicals[ cas ].methods[ splitLine[ j ] ] = getBlankArray();
+                    facilities[ fID ].chemicals[ cas ].methods[ splitLine[ j ] ][fileNumber - 1987 ] = 1;
+
+                    // add to total
+                    facilities[ fID ].chemicals[ cas ].methods.total[fileNumber - 1987 ]++;
+
+                  // otherwise, the chemical has a methods attribute and the relevant method
+                  } else {
+                    facilities[ fID ].chemicals[ cas ].methods[ splitLine[ j ] ][fileNumber - 1987 ]++;
+
+                    // add to total
+                    facilities[ fID ].chemicals[ cas ].methods.total[fileNumber - 1987 ]++;
+                  }
+
+                  // CHEM
+                  // if the chemical exists with no methods object, create a new object
+                  // if the chemical exists with a methods object, simply add to methods object
+
+                }
+              }
+            }
+		      }
+      }
+
+    });
+
+    /* Handle end of file condition */
+    rl.on('close', function() {
+      // console.log(lengths);
+      console.log( "fin: ", i, " lines from Form R", fileNumber);
+      if(fileNumber >= 2013) finalize();  // call finalize when finished
+    });
+  };  // parse file
+
+  // read the specified TRI Form R file
+  parseFile( fileNumber );
 
 };
 

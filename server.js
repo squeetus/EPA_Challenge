@@ -12,11 +12,9 @@ mongoose.connect(config.db, function(err){
 });
 
 var EPAFileParser = require('./app/controllers/EPAFileParser');
-// EPAFileParser.testChemical();
-// EPAFileParser.testFacility();
-// EPAFileParser.clearDBS();
+EPAFileParser.clearDBS();
 // run with --max-old-space-size=4096 to allocate enough memory
-// EPAFileParser.readFiles();
+EPAFileParser.readFiles();
 
 // serve static files from the public directory
 app.use(express.static(config.root + '/public'));
