@@ -32,36 +32,4 @@ module.exports = function( app, handleError ) {
   app.get('/facilities', Facility.showFacilities, handleError);
   app.get('/facilities/:fid', Facility.showFacility, handleError);
 
-
-  /************************************************
-
-      Industry information
-
-  ************************************************/
-
-  // app.get('/data/test', Facility.test, handleError);
-
-  ///////////////////
-  //////  API  //////
-  ///////////////////
-
-  // get list of unique industries
-  app.get('/data/industries', Facility.industries, handleError);
-  // get facility data for a particular industry sector
-  app.get('/data/industries/naics/:naics', Facility.industry, handleError);
-
-  // get list of unique industries and total usage (largest to smallest)
-  app.get('/data/industries/usage/total', Facility.industriesTotalUsage, handleError);
-  // get list of unique industries and yearly usage (largest to smallest)
-  app.get('/data/industries/usage/yearly', Facility.industriesYearlyTotalUsage, handleError);
-  // get list of unique industries and yearly total usage for a specified subset of chemicals
-  app.get('/data/industries/usage/chemicals', Facility.industriesYearlyTotalChemicalUsage, handleError);
-
-  // get list of unique facilities in each industry sector
-  app.get('/data/industries/facilities', Facility.industriesFacilities, handleError);
-
-
-  ///////////////////
-  //////  Views  ////
-  ///////////////////
 };
