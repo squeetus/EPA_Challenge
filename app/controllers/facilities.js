@@ -229,12 +229,6 @@ exports.methods = function(req, res, next) {
             methods: "$chemicals.methods"
           }
         },
-        // {$project: {
-        //     tri_facility_id: 1,
-        //     usage: "$chemicals.usage.total_usage", // grab out total usage** (depends if we want overall vs breakdown)
-        //     // stuff: {$cond: [ use, "$chemicals.usage.air", 0 ]}
-        //   }
-        // }
       ])
       .limit(1000)
       .exec(function (err, data) {

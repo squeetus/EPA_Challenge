@@ -276,3 +276,46 @@ exports.industriesFacilities = function(req, res, next) {
             res.json(data);
     });
 };
+
+/*
+    Return a list of all facilities with treatment methods in the given industry sector
+    Route:  /data/industries/naics/:naics/methods
+*/
+exports.industryMethods = function(req, res, next) {
+  Facility
+      .aggregate([
+        {$match: {
+            chemicals: {
+               $elemMatch: { methods: {$exists: true} } // find facilities with any treatment method
+            },
+            primary_naics: +req.params.naics
+          }
+        },
+        {$project:{
+            primary_naics: 1,
+            tri_facility_id: 1,
+            chemicals: {$filter: {  // only project the chemicals with treatment methods
+                input: '$chemicals',
+                as: 'c',
+                cond: { $gte : [ '$$c.methods', null ] }  // aggregation pipeline doesn't have $exists yet
+              }
+            }
+          }
+        },
+        {$project: {
+            primary_naics: 1,
+            tri_facility_id: 1,
+            // chemicals: 1
+            chemicals: "$chemicals.chemical", // create array of treated chemicals
+            methods: "$chemicals.methods"     // create an array of method objects (types and totals)
+          }
+        },
+      ])
+      .limit(100)
+      .exec(function (err, data) {
+          if (err) return next(err);
+          if (!data)
+              return next("no data for treatment methods.");
+          res.json(data);
+  });
+};

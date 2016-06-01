@@ -29,6 +29,8 @@ module.exports = function( app, handleError ) {
   // get list of unique facilities in each industry sector
   app.get('/data/industries/facilities', Industry.industriesFacilities, handleError);
 
+  // get list of top treatment method counts
+  app.get('/data/industries/naics/:naics/methods', Industry.industryMethods, handleError);
 
   ///////////////////
   //////  Views  ////
