@@ -131,6 +131,7 @@ exports.industryTotalUsage = function(req, res, next) {
           {$project: {
               primary_naics: +req.params.naics,
               tri_facility_id: 1,
+              loc: 1,
               "total": {$sum: {$slice : ["$total_usage", from, to]}},
               "yearly": {$slice : ["$total_usage", from, to]}
             }
