@@ -1,12 +1,13 @@
 function timeSeriesChart() {
-  var margin = {top: 20, right: 20, bottom: 20, left: 20},
+  var margin = {top: 20, right: 20, bottom: 20, left: 120},
       width = 760,
       height = 120,
       xValue = function(d) { return d[0]; },
       yValue = function(d) { return d[1]; },
-      xScale = d3.time.scale(),
+      xScale = d3.scale.linear(),
       yScale = d3.scale.linear(),
-      xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickSize(6, 0),
+      xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickSize(6, 0).tickFormat(d3.format("d")),
+      yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(4, "s").tickSize(6, 0),
       area = d3.svg.area().x(X).y1(Y),
       line = d3.svg.line().x(X).y(Y);
 
@@ -37,6 +38,7 @@ function timeSeriesChart() {
       gEnter.append("path").attr("class", "area");
       gEnter.append("path").attr("class", "line");
       gEnter.append("g").attr("class", "x axis");
+      gEnter.append("g").attr("class", "y axis");
 
       // Update the outer dimensions.
       svg .attr("width", width)
@@ -58,6 +60,11 @@ function timeSeriesChart() {
       g.select(".x.axis")
           .attr("transform", "translate(0," + yScale.range()[0] + ")")
           .call(xAxis);
+
+      // Update the y-axis.
+      g.select(".y.axis")
+          .attr("transform", "translate(0," + xScale.range()[0] + ")")
+          .call(yAxis);
     });
   }
 

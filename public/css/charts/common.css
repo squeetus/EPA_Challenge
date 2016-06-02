@@ -1,0 +1,22 @@
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #18314F;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: #384E77;
+  stroke-width: 1.5px;
+  opacity: 0.8;
+}
+
+.area {
+  fill: #8BBEB2;
+  opacity: 0.8;
+}
