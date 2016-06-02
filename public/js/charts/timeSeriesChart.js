@@ -1,5 +1,6 @@
 function timeSeriesChart() {
-  var margin = {top: 20, right: 20, bottom: 20, left: 120},
+
+  var margin = {top: 20, right: 20, bottom: 20, left: 50},
       width = 760,
       height = 120,
       chartContainer,
@@ -7,13 +8,14 @@ function timeSeriesChart() {
       yValue = function(d) { return d[1]; },
       xScale = d3.scale.linear(),
       yScale = d3.scale.linear(),
-      xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(4).tickSize(6, 0).tickFormat(d3.format("d")),
+      xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(5).tickSize(6, 0).tickFormat(d3.format("d")),
       yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(4, "s").tickSize(6, 0),
       area = d3.svg.area().x(X).y1(Y),
       line = d3.svg.line().x(X).y(Y);
 
   function chart(selection) {
     selection.each(function(data) {
+      width = d3.select(this.parentNode).node().getBoundingClientRect().width - margin.left;
 
       // Convert data to standard representation greedily;
       // this is needed for nondeterministic accessors.

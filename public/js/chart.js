@@ -23,8 +23,8 @@ var getData = function(naics, cb) {
 // This will need to be refactored into a chart package at some point
 var chart = timeSeriesChart()
     .x(function(d, i) { return i + params.from; }) // set the x range based on the time range
-    .y(function(d) { return +d; })
-    .ticksX((params.to-params.from)/2); // set the number of ticks based on the time range
+    .y(function(d) { return +d; });
+    // .ticksX((params.to-params.from)/2); // set the number of ticks based on the time range
 
 // Sets the description content for the chart(s)
 var setDescription = function( desc ) {
@@ -73,7 +73,7 @@ switch(version) {
           total[k] += data[j].yearly[k];
         }
       }
-      for( j = 10; j < 100; j++ ) {
+      for( j = 10; j < data.length; j++ ) {
         for( k = 0; k < data[j].yearly.length; k++ ) {
           total[k] += data[j].yearly[k];
         }

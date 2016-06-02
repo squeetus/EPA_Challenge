@@ -1,20 +1,34 @@
+/*
+  CSS Scheme, dark to light:
+
+  #0D0630
+  #18314F
+  #384E77
+  #8BBEB2
+  #E6F9AF
+*/
+
 body {
   padding: 50px 80px;
   font: 14px "Helvetica Nueue", "Lucida Grande", Arial, sans-serif;
 }
 
 .chartTitle {
-  margin-left: 10px;
+  margin: 10px;
   position: relative;
-  top: 10px;
-  left: 100px;
   margin-top: 25px;
+  width: inherit;
 }
 
 .chart {
   position: float;
+  width: inherit;
 }
 
+#vis {
+  width:1000px;
+  border: solid 3px #384E77;
+}
 
 #description {
   margin: 10px;

@@ -32,17 +32,6 @@
   opacity: 0.8;
 }
 
-/*
-  CSS Scheme, dark to light:
-
-  #0D0630
-  #18314F
-  #384E77
-  #8BBEB2
-  #E6F9AF
-*/
-
-
 .axis path,
 .axis line {
   fill: none;
