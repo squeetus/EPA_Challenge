@@ -136,8 +136,8 @@ exports.facilitiesTotalUsage = function(req, res, next) {
     Route: /data/facilities/usage/chemicals
 */
 exports.chemicalUsage = function(req, res, next) {
-  var from = (req.query.from) ? req.query.from - 1986 : 0,
-    to = (req.query.to) ? (req.query.to - 1986) : 27,
+  var from = (req.query.from) ? req.query.from - 1987 : 0,
+    to = (req.query.to) ? (req.query.to - 1987) : 27,
     chem = (req.query.chems) ? req.query.chems.split(',') : [];
 
   // ensure range bounds for usage are reasonable

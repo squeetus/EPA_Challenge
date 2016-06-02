@@ -14,8 +14,8 @@ var mongoose = require('mongoose'),
     Route:  /data/industries/naics/:naics
 */
 exports.industry = function(req, res, next) {
-    var from = (req.query.from) ? req.query.from - 1986 : 0,
-      to = (req.query.to) ? (req.query.to - 1986) : 27;
+    var from = (req.query.from) ? req.query.from - 1987 : 0,
+      to = (req.query.to) ? (req.query.to - 1987) : 27;
 
     // ensure range bounds for usage are reasonable
     if( from < 0 || from > 27) from = 0;
@@ -77,8 +77,10 @@ exports.industries = function(req, res, next) {
     Route:  /data/industries/usage/total
 */
 exports.industriesTotalUsage = function(req, res, next) {
-    var from = (req.query.from) ? req.query.from - 1986 : 0,
-      to = (req.query.to) ? (req.query.to - 1986) : 27;
+    var from = (req.query.from) ? req.query.from - 1987 : 0,
+      to = (req.query.to) ? (req.query.to - 1987) : 27,
+      limit = (req.query.limit) ? +req.query.limit : 10,
+      skip = (req.query.skip) ? +req.query.skip : 0;
 
     // ensure range bounds for usage are reasonable
     if( from < 0 || from > 27) from = 0;
@@ -102,6 +104,8 @@ exports.industriesTotalUsage = function(req, res, next) {
         .sort(
           {total: -1}
         )
+        .limit(limit)
+        .skip(skip)
         .exec(function (err, data) {
             if (err) return next(err);
             if (!data)
@@ -116,9 +120,9 @@ exports.industriesTotalUsage = function(req, res, next) {
     Route:  /data/industries/naics/:naics/usage/total
 */
 exports.industryTotalUsage = function(req, res, next) {
-    var from = (req.query.from) ? req.query.from - 1986 : 0,
-      to = (req.query.to) ? (req.query.to - 1986) : 27,
-      limit = (req.query.limit) ? +req.query.limit : 100,
+    var from = (req.query.from) ? req.query.from - 1987 : 0,
+      to = (req.query.to) ? (req.query.to - 1987) : 27,
+      limit = (req.query.limit) ? +req.query.limit : 5,
       skip = (req.query.skip) ? +req.query.skip : 0;
 
     // ensure range bounds for usage are reasonable
@@ -160,8 +164,8 @@ exports.industryTotalUsage = function(req, res, next) {
     Route: /data/industries/usage/chemicals/
 */
 exports.industriesYearlyTotalChemicalUsage = function(req, res, next) {
-  var from = (req.query.from) ? req.query.from - 1986 : 0,
-    to = (req.query.to) ? (req.query.to - 1986) : 27,
+  var from = (req.query.from) ? req.query.from - 1987 : 0,
+    to = (req.query.to) ? (req.query.to - 1987) : 27,
     chem = (req.query.chems) ? req.query.chems.split(',') : [];
 
   console.log(from, to);
@@ -237,8 +241,8 @@ exports.industriesYearlyTotalChemicalUsage = function(req, res, next) {
     Route:  /data/industries/usage/yearly
 */
 exports.industriesYearlyTotalUsage = function(req, res, next) {
-    var from = (req.query.from) ? req.query.from - 1986 : 0,
-      to = (req.query.to) ? (req.query.to - 1986) : 27;
+    var from = (req.query.from) ? req.query.from - 1987 : 0,
+      to = (req.query.to) ? (req.query.to - 1987) : 27;
 
     // ensure range bounds for usage are reasonable
     if( from < 0 || from > 27) from = 0;
