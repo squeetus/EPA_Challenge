@@ -7,7 +7,7 @@ module.exports = function( app ) {
     res.render('index', {args: ["arg", "arg2"] });
   });
 
-  app.get('/test', function( req, res ) {
-    res.render('test');
+  app.get('/chart/:number', function( req, res ) {
+    res.render('chart', {version: req.params.number} );
   });
 };

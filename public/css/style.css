@@ -2,3 +2,22 @@ body {
   padding: 50px 80px;
   font: 14px "Helvetica Nueue", "Lucida Grande", Arial, sans-serif;
 }
+
+.chartTitle {
+  margin-left: 10px;
+  position: relative;
+  top: 10px;
+  left: 100px;
+  margin-top: 25px;
+}
+
+.chart {
+  position: float;
+}
+
+
+#description {
+  margin: 10px;
+  margin-bottom: 75px;
+  font-size: large;
+}

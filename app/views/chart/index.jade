@@ -1,0 +1,11 @@
+extends ../layout
+
+block content
+  h1 Vis #{version}
+  #description
+  #vis
+
+  script.
+    version = #{version}
+  script(src="/js/charts/timeSeriesChart.js")
+  script(src="/js/chart.js")
