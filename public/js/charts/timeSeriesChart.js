@@ -2,11 +2,12 @@ function timeSeriesChart() {
   var margin = {top: 20, right: 20, bottom: 20, left: 120},
       width = 760,
       height = 120,
+      chartContainer,
       xValue = function(d) { return d[0]; },
       yValue = function(d) { return d[1]; },
       xScale = d3.scale.linear(),
       yScale = d3.scale.linear(),
-      xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickSize(6, 0).tickFormat(d3.format("d")),
+      xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(4).tickSize(6, 0).tickFormat(d3.format("d")),
       yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(4, "s").tickSize(6, 0),
       area = d3.svg.area().x(X).y1(Y),
       line = d3.svg.line().x(X).y(Y);
@@ -30,26 +31,35 @@ function timeSeriesChart() {
           .domain([0, d3.max(data, function(d) { return d[1]; })])
           .range([height - margin.top - margin.bottom, 0]);
 
-      // Select the svg element, if it exists.
-      var svg = d3.select(this).selectAll("svg").data([data]);
+      // Append an svg element
+      var svg = d3.select(this).append("svg");
 
-      // Otherwise, create the skeletal chart.
-      var gEnter = svg.enter().append("svg").append("g").attr("id", "chartContainer");
-
-      gEnter.append("g").attr("class", "x axis");
-      gEnter.append("g").attr("class", "y axis");
-      gEnter.append("g").attr("id", "overlay1");
-      gEnter.select("#overlay1").append("path").attr("class", "area");
-      gEnter.select("#overlay1").append("path").attr("class", "line");
+      // Set up the <g> chart container and axes
+      chartContainer = svg.append("g").attr("id", "chartContainer");
+      chartContainer.append("g").attr("class", "x axis");
+      chartContainer.append("g").attr("class", "y axis");
 
       // Update the outer dimensions.
       svg .attr("width", width)
           .attr("height", height);
 
       // Update the inner dimensions.
-      var g = svg.select("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-          // .attr("id", g1);
+      chartContainer.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      // Update the x-axis.
+      chartContainer.select(".x.axis")
+          .attr("transform", "translate(0," + yScale.range()[0] + ")")
+          .call(xAxis);
+
+      // Update the y-axis.
+      chartContainer.select(".y.axis")
+          .attr("transform", "translate(0," + xScale.range()[0] + ")")
+          .call(yAxis);
+
+      //
+      var g = d3.select(this).select("#chartContainer").selectAll("#overlay1").data([data]).enter().append("g").attr("id", "chart1");
+      g.append("path").attr("class", "area");
+      g.append("path").attr("class", "line");
 
       // Update the area path.
       g.select(".area")
@@ -62,15 +72,7 @@ function timeSeriesChart() {
       g.select(".line")
           .attr("d", line);
 
-      // Update the x-axis.
-      g.select(".x.axis")
-          .attr("transform", "translate(0," + yScale.range()[0] + ")")
-          .call(xAxis);
 
-      // Update the y-axis.
-      g.select(".y.axis")
-          .attr("transform", "translate(0," + xScale.range()[0] + ")")
-          .call(yAxis);
     });
   }
 
@@ -89,30 +91,13 @@ function timeSeriesChart() {
           .domain([0, d3.max(data, function(d) { return d[1]; })]);
       }
 
-      // // // Select the svg element, if it exists.
-      // var svg = d3.select(this).selectAll("svg");
-      // //
-      // var gEnter = svg.select("g").data([data]).enter()
-      //       .append("g").attr("id", "overlay2");
-      // Select the svg element, if it exists.
-
-      var svg = d3.select(this).select("svg").select("#chartContainer");
-      // Otherwise, create the skeletal chart.
-      var gEnter = svg.data([data]).enter();
-
-
-      gEnter.append("g").attr("id", "overlay2");
-      gEnter.append("path").attr("class", "area");
-      gEnter.append("path").attr("class", "line");
-
-      // Update the inner dimensions.
-      var g = svg.select("overlay2")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      var g = d3.select(this).select("#chartContainer").selectAll("#overlay2").data([data]).enter().append("g").attr("id", "chart2");
+      g.append("path").attr("class", "area");
+      g.append("path").attr("class", "line");
 
       // Update the area path.
       g.select(".area")
           .attr("d", area.y0(yScale.range()[0]))
-          // .classed(".areaOverlay", true)
           .on("mouseover", function (d) {
             console.log('peep');
           });
@@ -120,6 +105,7 @@ function timeSeriesChart() {
       // Update the line path.
       g.select(".line")
           .attr("d", line);
+
 
     });
   };
@@ -161,6 +147,12 @@ function timeSeriesChart() {
   chart.y = function(_) {
     if (!arguments.length) return yValue;
     yValue = _;
+    return chart;
+  };
+
+  chart.ticksX = function(_) {
+    if (!arguments.length) return xAxis.ticks()[0];
+    xAxis.ticks(_);
     return chart;
   };
 

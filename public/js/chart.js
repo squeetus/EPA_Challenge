@@ -1,4 +1,3 @@
-console.log(":)");
 
 /*
     Asynchronous method queries for facility usage data
@@ -7,7 +6,7 @@ console.log(":)");
 var getData = function(naics, cb) {
   // GET facility data from API
   $.ajax({
-      url: "/data/industries/naics/" + naics + "/usage/total",
+      url: "/data/industries/naics/" + naics + "/usage/total?from=" + params.from + "&to=" + params.to,
       type: "get"
   }).done(function(data) {
     if(typeof data != 'object') {
@@ -20,21 +19,26 @@ var getData = function(naics, cb) {
   });
 };
 
+// Create a timeseries chart object.
+// This will need to be refactored into a chart package at some point
 var chart = timeSeriesChart()
-    .x(function(d, i) { return i + 1987; })
-    .y(function(d) { return +d; });
+    .x(function(d, i) { return i + params.from; }) // set the x range based on the time range
+    .y(function(d) { return +d; })
+    .ticksX((params.to-params.from)/2); // set the number of ticks based on the time range
 
-
+// Sets the description content for the chart(s)
 var setDescription = function( desc ) {
     d3.select("#description")
           .text(desc);
 };
 
+// (Temporary) generate the relevant visualization based on the version argument
 switch(version) {
   case 1:
 
-    getData('221112', function( data ) {
-      setDescription("Top " + data.length + " facilities by total usage (from industry " + 221112 + ")");
+    // get facility data for a particular industry sector
+    getData(params.naics, function( data ) {
+      setDescription("Top " + data.length + " facilities by total usage (from industry " + params.naics + ")");
       data.forEach(function(d, i) {
         d3.select("#vis")
         .append("div")
@@ -52,13 +56,13 @@ switch(version) {
     });
     break;
   case 2:
-    setDescription("Top 10 facilities (by total usage) (from industry " + 221112 + ")");
-    getData('221112', function( data ) {
+    setDescription("Top 10 facilities (by total usage) (from industry " + params.naics + ")");
+    getData(params.naics, function( data ) {
       var aggregate = [];
       var total = [];
       var i, j, k;
 
-      for( i = 0; i < 27; i++ ) {
+      for( i = 0; i < data[0].yearly.length; i++ ) {
          aggregate[i] = 0;
          total[i] = 0;
        }
@@ -74,7 +78,6 @@ switch(version) {
           total[k] += data[j].yearly[k];
         }
       }
-      // console.log(aggregate, total);
 
       d3.select("#vis")
         .append("div")
@@ -86,16 +89,9 @@ switch(version) {
         .datum(total)
         .call(chart);
 
-      // d3.select("#vis")
-      //   .append("div")
-      //   .attr("class", "chartTitle")
-      //   .text("Top " + 100)
-      //   .append("div")
-      //   .attr("id", "chart1")
-      //   .attr("class", "chart")
-      // d3.select("#chart1")
-      //   .datum(aggregate)
-      //   .call(chart.addLayer);
+      d3.select("#chart1")
+        .datum(aggregate)
+        .call(chart.addLayer);
     });
     break;
 }
