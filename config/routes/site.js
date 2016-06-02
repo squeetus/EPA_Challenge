@@ -4,7 +4,10 @@ module.exports = function( app ) {
   });
 
   app.get('/home', function( req, res ) {
-
     res.render('index', {args: ["arg", "arg2"] });
+  });
+
+  app.get('/test', function( req, res ) {
+    res.render('test');
   });
 };

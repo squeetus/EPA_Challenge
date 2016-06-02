@@ -16,6 +16,8 @@ var EPAFileParser = require('./app/controllers/EPAFileParser');
 // run with --max-old-space-size=4096 to allocate enough memory
 // EPAFileParser.readFiles();
 
+// set app view engine
+app.set('view engine', 'jade');
 // serve static files from the public directory
 app.use(express.static(config.root + '/public'));
 
