@@ -57,7 +57,7 @@ exports.testFacility = function() {
     f.loc = [-33.98, 75.35];
     f.federal_facility = "NO";
     f.primary_sic = 1234;
-    f.primary_naics = 4321;
+    f.primary_naics = "4321";
     f.chemicals = [];
     f.chemicals.push({
       air: [0, 0, 0],

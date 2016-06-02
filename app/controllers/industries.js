@@ -25,7 +25,7 @@ exports.industry = function(req, res, next) {
     Facility
         .aggregate([
           {$match: {
-            primary_naics: +req.params.naics  // match industry sector
+              primary_naics: {$regex: new RegExp('^' + req.params.naics)}
             }
           },
           {$project: {
@@ -122,7 +122,7 @@ exports.industriesTotalUsage = function(req, res, next) {
 exports.industryTotalUsage = function(req, res, next) {
     var from = (req.query.from) ? req.query.from - 1987 : 0,
       to = (req.query.to) ? (req.query.to - 1987) : 27,
-      limit = (req.query.limit) ? +req.query.limit : 5,
+      limit = (req.query.limit) ? +req.query.limit : 100,
       skip = (req.query.skip) ? +req.query.skip : 0;
 
     // ensure range bounds for usage are reasonable
@@ -133,7 +133,7 @@ exports.industryTotalUsage = function(req, res, next) {
     Facility
         .aggregate([
           {$match: {
-            primary_naics: +req.params.naics,
+              primary_naics: {$regex: new RegExp('^' + req.params.naics)}
             }
           },
           {$project: {
@@ -168,7 +168,6 @@ exports.industriesYearlyTotalChemicalUsage = function(req, res, next) {
     to = (req.query.to) ? (req.query.to - 1987) : 27,
     chem = (req.query.chems) ? req.query.chems.split(',') : [];
 
-  console.log(from, to);
   // ensure range bounds for usage are reasonable
   if( from < 0 || from > 27) from = 0;
   if( to <= from || to > 27) to = 27;
@@ -337,7 +336,7 @@ exports.industryMethods = function(req, res, next) {
             chemicals: {
                $elemMatch: { methods: {$exists: true} } // find facilities with any treatment method
             },
-            primary_naics: +req.params.naics
+            primary_naics: {$regex: new RegExp('^' + req.params.naics)}
           }
         },
         {$project:{

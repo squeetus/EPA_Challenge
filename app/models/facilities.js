@@ -20,7 +20,7 @@ var Facility = new Schema ({
     loc:                {type: [Number], index: '2dsphere', default: [null, null]},
     federal_facility:   {type: String, default: ''},
     primary_sic:        {type: Number, default: 0},
-    primary_naics:      {type: Number, default: 0},
+    primary_naics:      {type: String, default: ''},
     total_usage:        {type: [Number], default: 0},
     chemicals:          []
     /*
@@ -146,9 +146,9 @@ Facility.statics.construct = function( f, attrs ) {
   f.primary_sic = parseFloat(attrs[13]);
   if( isNaN(f.primary_sic) )
     f.primary_sic = null;
-  f.primary_naics = (attrs[19]) ? parseFloat(attrs[19]) : -1;
-  if( isNaN(f.primary_naics) )
-    f.primary_naics = null;
+  f.primary_naics = (attrs[19]) ? attrs[19] : "NONE";
+  if( isNaN(parseFloat(f.primary_naics)) )
+    f.primary_naics = "NONE";
 
   // initialize facility's total usage
   f.total_usage = [];
