@@ -34,11 +34,13 @@ function timeSeriesChart() {
       var svg = d3.select(this).selectAll("svg").data([data]);
 
       // Otherwise, create the skeletal chart.
-      var gEnter = svg.enter().append("svg").append("g");
-      gEnter.append("path").attr("class", "area");
-      gEnter.append("path").attr("class", "line");
+      var gEnter = svg.enter().append("svg").append("g").attr("id", "chartContainer");
+
       gEnter.append("g").attr("class", "x axis");
       gEnter.append("g").attr("class", "y axis");
+      gEnter.append("g").attr("id", "overlay1");
+      gEnter.select("#overlay1").append("path").attr("class", "area");
+      gEnter.select("#overlay1").append("path").attr("class", "line");
 
       // Update the outer dimensions.
       svg .attr("width", width)
@@ -47,10 +49,14 @@ function timeSeriesChart() {
       // Update the inner dimensions.
       var g = svg.select("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+          // .attr("id", g1);
 
       // Update the area path.
       g.select(".area")
-          .attr("d", area.y0(yScale.range()[0]));
+          .attr("d", area.y0(yScale.range()[0]))
+          .on("mouseover", function (d) {
+            console.log('boop');
+          });
 
       // Update the line path.
       g.select(".line")
@@ -67,6 +73,56 @@ function timeSeriesChart() {
           .call(yAxis);
     });
   }
+
+  chart.addLayer = function(selection) {
+    selection.each(function(data) {
+
+      // Convert data to standard representation greedily;
+      // this is needed for nondeterministic accessors.
+      data = data.map(function(d, i) {
+        return [xValue.call(data, d, i), yValue.call(data, d, i)];
+      });
+
+      // Update the y-scale.
+      if(d3.max(data, function(d) { return d[1]; }) > yScale.domain()[1]) {
+        yScale
+          .domain([0, d3.max(data, function(d) { return d[1]; })]);
+      }
+
+      // // // Select the svg element, if it exists.
+      // var svg = d3.select(this).selectAll("svg");
+      // //
+      // var gEnter = svg.select("g").data([data]).enter()
+      //       .append("g").attr("id", "overlay2");
+      // Select the svg element, if it exists.
+
+      var svg = d3.select(this).select("svg").select("#chartContainer");
+      // Otherwise, create the skeletal chart.
+      var gEnter = svg.data([data]).enter();
+
+
+      gEnter.append("g").attr("id", "overlay2");
+      gEnter.append("path").attr("class", "area");
+      gEnter.append("path").attr("class", "line");
+
+      // Update the inner dimensions.
+      var g = svg.select("overlay2")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      // Update the area path.
+      g.select(".area")
+          .attr("d", area.y0(yScale.range()[0]))
+          // .classed(".areaOverlay", true)
+          .on("mouseover", function (d) {
+            console.log('peep');
+          });
+
+      // Update the line path.
+      g.select(".line")
+          .attr("d", line);
+
+    });
+  };
 
   // The x-accessor for the path generator; xScale ∘ xValue.
   function X(d) {

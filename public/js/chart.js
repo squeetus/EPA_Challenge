@@ -74,27 +74,28 @@ switch(version) {
           total[k] += data[j].yearly[k];
         }
       }
-      console.log(aggregate, total);
+      // console.log(aggregate, total);
 
       d3.select("#vis")
         .append("div")
         .attr("class", "chartTitle")
-        .text("Top 10")
+        .text("Top 100 vs top 10")
         .append("div")
         .attr("id", "chart1")
         .attr("class", "chart")
-        .datum(aggregate)
-        .call(chart);
-
-      d3.select("#vis")
-        .append("div")
-        .attr("class", "chartTitle")
-        .text("Top " + 100)
-        .append("div")
-        .attr("id", "chart2")
-        .attr("class", "chart")
         .datum(total)
         .call(chart);
+
+      // d3.select("#vis")
+      //   .append("div")
+      //   .attr("class", "chartTitle")
+      //   .text("Top " + 100)
+      //   .append("div")
+      //   .attr("id", "chart1")
+      //   .attr("class", "chart")
+      // d3.select("#chart1")
+      //   .datum(aggregate)
+      //   .call(chart.addLayer);
     });
     break;
 }
