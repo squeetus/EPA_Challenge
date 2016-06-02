@@ -6,7 +6,7 @@
 var getData = function(naics, cb) {
   // GET facility data from API
   $.ajax({
-      url: "/data/industries/naics/" + naics + "/usage/total?from=" + params.from + "&to=" + params.to,
+      url: "/data/industries/naics/" + naics + "/usage/total?limit=" + params.limit + "&from=" + params.from + "&to=" + params.to,
       type: "get"
   }).done(function(data) {
     if(typeof data != 'object') {
@@ -24,7 +24,7 @@ var getData = function(naics, cb) {
 var chart = timeSeriesChart()
     .x(function(d, i) { return i + params.from; }) // set the x range based on the time range
     .y(function(d) { return +d; });
-    // .ticksX((params.to-params.from)/2); // set the number of ticks based on the time range
+    //.ticksX((params.to-params.from)/2); // set the number of ticks based on the time range
 
 // Sets the description content for the chart(s)
 var setDescription = function( desc ) {

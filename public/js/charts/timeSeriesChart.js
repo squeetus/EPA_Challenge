@@ -9,7 +9,7 @@ function timeSeriesChart() {
       xScale = d3.scale.linear(),
       yScale = d3.scale.linear(),
       xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(5).tickSize(6, 0).tickFormat(d3.format("d")),
-      yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(4, "s").tickSize(6, 0),
+      yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(4).tickSize(6, 0).tickFormat(formatAbbreviation),
       area = d3.svg.area().x(X).y1(Y),
       line = d3.svg.line().x(X).y(Y);
 
@@ -23,17 +23,24 @@ function timeSeriesChart() {
         return [xValue.call(data, d, i), yValue.call(data, d, i)];
       });
 
-      // Update the x-scale.
+      // Update the x-scale
       xScale
           .domain(d3.extent(data, function(d) { return d[0]; }))
           .range([0, width - margin.left - margin.right]);
 
-      // Update the y-scale.
+      // Update the y-scale
       yScale
           .domain([0, d3.max(data, function(d) { return d[1]; })])
           .range([height - margin.top - margin.bottom, 0]);
 
-      // Append an svg element
+      // Set the number of ticks appropriately
+      xAxis.ticks((function() {
+        if(width <= 200) return 0;
+        if(width <= 500) return 6;
+        return ( data.length / 2 );
+      })());
+
+      // Append an svg element for the chart
       var svg = d3.select(this).append("svg");
 
       // Set up the <g> chart container and axes
