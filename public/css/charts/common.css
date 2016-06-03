@@ -24,12 +24,15 @@
   fill: none;
   stroke: #384E77;
   stroke-width: 1.5px;
-  opacity: 0.8;
 }
 
 .area {
   fill: #8BBEB2;
-  opacity: 0.8;
+}
+
+.area.hover {
+  fill: #384E77;
+  opacity: 1;
 }
 
 .axis path,
@@ -50,7 +53,15 @@
   opacity: 0.8;
 }
 
-.areaOverlay {
-  fill: pink;
-  opacity: 0.5;
+
+.focus circle {
+  fill: none;
+  stroke: #18314F;
+  stroke-width: 2px;
+  opacity: .6;
+}
+
+.focusOverlay {
+  fill: none;
+  pointer-events: all;
 }

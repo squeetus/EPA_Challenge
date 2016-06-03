@@ -2,12 +2,13 @@ function timeSeriesChart() {
 
   var margin = {top: 20, right: 20, bottom: 20, left: 50},
       width = 760,
-      height = 120,
+      height = 200,
       chartContainer,
       xValue = function(d) { return d[0]; },
       yValue = function(d) { return d[1]; },
       xScale = d3.scale.linear(),
       yScale = d3.scale.linear(),
+      bisect = d3.bisector(function(d) { return d[0]; }).left,
       xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(5).tickSize(6, 0).tickFormat(d3.format("d")),
       yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(4).tickSize(6, 0).tickFormat(formatAbbreviation),
       area = d3.svg.area().x(X).y1(Y),
@@ -36,7 +37,7 @@ function timeSeriesChart() {
       // Set the number of ticks appropriately
       xAxis.ticks((function() {
         if(width <= 200) return 0;
-        if(width <= 500) return 6;
+        if(width <= 500) return 5;
         return ( data.length / 2 );
       })());
 
@@ -49,7 +50,7 @@ function timeSeriesChart() {
       chartContainer.append("g").attr("class", "y axis");
 
       // Update the outer dimensions.
-      svg .attr("width", width)
+      svg .attr("width", width + margin.left + margin.right)
           .attr("height", height);
 
       // Update the inner dimensions.
@@ -66,20 +67,60 @@ function timeSeriesChart() {
           .call(yAxis);
 
       //
-      var g = d3.select(this).select("#chartContainer").selectAll("#overlay1").data([data]).enter().append("g").attr("id", "chart1");
+      var g = d3.select(this).select("#chartContainer").selectAll(".overlay").data([data]).enter().append("g");//.attr("class", "chart");
       g.append("path").attr("class", "area");
       g.append("path").attr("class", "line");
 
       // Update the area path.
       g.select(".area")
-          .attr("d", area.y0(yScale.range()[0]))
-          .on("mouseover", function (d) {
-            console.log('boop');
-          });
+          .attr("d", area.y0(yScale.range()[0]));
+          // .on("mouseover", function (d) {
+          //   d3.select(this).classed("hover", true);
+          // })
+          // .on("mouseout", function (d) {
+          //   d3.select(this).classed("hover", false);
+          // });
 
       // Update the line path.
       g.select(".line")
           .attr("d", line);
+
+      var focus = svg.append("g")
+          .attr("class", "focus")
+          .style("display", "none");
+
+      focus.append("circle")
+          .attr("r", 4.5);
+
+      focus.append("text")
+          .attr("x", 10)
+          .attr("dy", ".35em");
+
+      chartContainer.append("rect")
+          .attr("class", "focusOverlay")
+          .attr("width", width)
+          .attr("height", height)
+          .on("mouseover", function() { focus.style("display", null); })
+          .on("mouseout", function() { focus.style("display", "none"); })
+          .on("mousemove", mousemove);
+
+
+
+
+      function mousemove() {
+        yScale
+            .domain([0, d3.max(data, function(d) { return d[1]; })]);
+
+        var x0 = xScale.invert(d3.mouse(this)[0]),
+            // y = d3.select(this).node().parentNode.yScale,
+            i = bisect(data, x0, 1),
+            d0 = data[i - 1],
+            d1 = data[i] || [Infinity];
+            d = x0 - d0[0] > d1[0] - x0 ? d1 : d0;
+
+        focus.attr("transform", "translate(" + (xScale(d[0]) + margin.left) + "," + (yScale(d[1]) + margin.bottom) + ")");
+        focus.select("text").text(d3.format(",.0f")(d[1]) + " lbs");
+      }
 
 
     });
@@ -100,7 +141,7 @@ function timeSeriesChart() {
           .domain([0, d3.max(data, function(d) { return d[1]; })]);
       }
 
-      var g = d3.select(this).select("#chartContainer").selectAll("#overlay2").data([data]).enter().append("g").attr("id", "chart2");
+      var g = d3.select(this).select("#chartContainer").selectAll(".overlay").data([data]).enter().append("g").attr("class", "chart");
       g.append("path").attr("class", "area");
       g.append("path").attr("class", "line");
 
@@ -108,13 +149,50 @@ function timeSeriesChart() {
       g.select(".area")
           .attr("d", area.y0(yScale.range()[0]))
           .on("mouseover", function (d) {
-            console.log('peep');
+            d3.select(this).classed("hover", true);
+          })
+          .on("mouseout", function (d) {
+            d3.select(this).classed("hover", false);
           });
 
       // Update the line path.
       g.select(".line")
           .attr("d", line);
-
+      // var focus = d3.select(this).select("#chartContainer").append("g")
+      //     .attr("class", "focus")
+      //     .style("display", "none");
+      //
+      // focus.append("circle")
+      //     .attr("r", 4.5);
+      //
+      // focus.append("text")
+      //     .attr("x", 10)
+      //     .attr("dy", ".35em");
+      //
+      // chartContainer.append("rect")
+      //     .attr("class", "focusOverlay")
+      //     .attr("width", width)
+      //     .attr("height", height)
+      //     .on("mouseover", function() { focus.style("display", null); })
+      //     .on("mouseout", function() { focus.style("display", "none"); })
+      //     .on("mousemove", mousemove);
+      //
+      // console.log(yScale.domain());
+      //
+      //
+      // function mousemove() {
+      //   yScale
+      //       .domain([0, d3.max(data, function(d) { return d[1]; })]);
+      //   var x0 = xScale.invert(d3.mouse(this)[0]),
+      //       i = bisect(data, x0, 1),
+      //       d0 = data[i - 1],
+      //       d1 = data[i] || [Infinity];
+      //       d = x0 - d0[0] > d1[0] - x0 ? d1 : d0;
+      //
+      //   focus.attr("transform", "translate(" + (xScale(d[0]) + margin.left) + "," + (yScale(d[1]) + margin.bottom) + ")");
+      //
+      //   focus.select("text").text(d[1]);
+      // }
 
     });
   };

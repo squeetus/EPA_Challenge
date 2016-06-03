@@ -35,7 +35,7 @@ var setDescription = function( desc ) {
 // (Temporary) generate the relevant visualization based on the version argument
 switch(version) {
   case 1:
-
+    chart.height(100);
     // get facility data for a particular industry sector
     getData(params.naics, function( data ) {
       setDescription("Top " + data.length + " facilities by total usage (from industry " + params.naics + ")");
@@ -44,7 +44,8 @@ switch(version) {
         .append("div")
         .attr("class", "chartTitle")
         .html( "Facility Name: &emsp;" + d.facility_name + "<br />" +
-                "Location:&emsp;&emsp;&emsp;" + d.loc
+                "Location:&emsp;&emsp;&emsp;" + d.loc + "<br />" +
+                "TRI Facility ID:&emsp;" + d.tri_facility_id
             )
         .append("div")
         .attr("id", "chart" + i)
@@ -56,42 +57,62 @@ switch(version) {
     });
     break;
   case 2:
-    setDescription("Top 10 facilities (by total usage) (from industry " + params.naics + ")");
+    params.limit = 1000;
     getData(params.naics, function( data ) {
+      setDescription("Top " + data.length + " facilities (by total usage) (from industry " + params.naics + ")");
       var aggregate = [];
       var total = [];
       var i, j, k;
 
+      // intialize arrays
+      for( j = 0; j < 5; j++ )
+        aggregate[j] = [];
       for( i = 0; i < data[0].yearly.length; i++ ) {
-         aggregate[i] = 0;
-         total[i] = 0;
-       }
+        for( j = 0; j < 5; j++ )
+          aggregate[j][i] = 0;
+        total[i] = 0;
+      }
 
-      for( j = 0; j < 10; j++ ) {
-        for( k = 0; k < data[j].yearly.length; k++ ) {
-          aggregate[k] += data[j].yearly[k];
-          total[k] += data[j].yearly[k];
+      // for each facility
+      for( i = 0; i < data.length; i++ ) {
+        // sum up each year
+        for( j = 0; j < data[0].yearly.length; j++) {
+            total[j] += data[i].yearly[j];
+
+            // add yearly usage for top K
+            if( i < 10 ) {
+              for( k = 0; k < 4; k++)
+                aggregate[k][j] += data[i].yearly[j];
+            } else if( i < 50 ) {
+              for( k = 1; k < 4; k++)
+                aggregate[k][j] += data[i].yearly[j];
+            } else if( i < 100 ) {
+              for( k = 2; k < 4; k++)
+                aggregate[k][j] += data[i].yearly[j];
+            } else if( i < 150 ) {
+              for( k = 3; k < 4; k++)
+                aggregate[k][j] += data[i].yearly[j];
+            }
         }
       }
-      for( j = 10; j < data.length; j++ ) {
-        for( k = 0; k < data[j].yearly.length; k++ ) {
-          total[k] += data[j].yearly[k];
-        }
-      }
+
+      chart.height(300);
 
       d3.select("#vis")
         .append("div")
         .attr("class", "chartTitle")
-        .text("Top 100 vs top 10")
+        .text("Top " + data.length + " vs top 10, 50, 100, and 150")
         .append("div")
         .attr("id", "chart1")
         .attr("class", "chart")
         .datum(total)
         .call(chart);
 
-      d3.select("#chart1")
-        .datum(aggregate)
-        .call(chart.addLayer);
+      for( i = 3; i >= 0; i-- ) {
+        d3.select("#chart1")
+          .datum(aggregate[i])
+          .call(chart.addLayer);
+      }
     });
     break;
 }
