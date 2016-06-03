@@ -19,3 +19,7 @@
 .bubble :hover {
   stroke: #000;
 }
+
+#mapTooltip {
+  position: absolute
+}

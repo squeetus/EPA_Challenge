@@ -23,7 +23,10 @@ function USAchart() {
             .projection(projection);
 
         // Append an svg element for the chart
+        var tooltip = d3.select(this).append("div")
+                  .attr("id", "mapTooltip");
         var svg = d3.select(this).append("svg");
+
 
         // Set up the <g> map container
         mapContainer = svg.append("g").attr("id", "mapContainer");
@@ -43,7 +46,7 @@ function USAchart() {
               .attr("d", path);
 
           radius.domain(d3.extent(data, function(d) { return d.total; }));
-          console.log(radius.domain(), radius.range());
+
           // county borders
           // svg.insert("path", ".graticule")
           //     .datum(topojson.mesh(us, us.objects.counties, function(a, b) { return a !== b && !(a.id / 1000 ^ b.id / 1000); }))
@@ -68,7 +71,15 @@ function USAchart() {
               .attr("transform", function(d) { return d.loc !== null ?  "translate(" + projection(d.loc) + ")" : [0,0]; })
               .attr("r", function(d) { return radius(d.total); })
               .on('mouseover', function(d) {
-                console.log(d);
+                  tooltip.html(
+                    d.facility_name +
+                    "<br /> Total:&nbsp" +
+                    d3.format(",.2f")(d.total) +
+                    " lbs"
+                  );
+              })
+              .on('mouseout', function() {
+                  tooltip.html("");
               });
 
             d3.select(self.frameElement).style("height", height + "px");
