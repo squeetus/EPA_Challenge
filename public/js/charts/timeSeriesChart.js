@@ -90,9 +90,17 @@ function timeSeriesChart() {
           .style("display", "none");
 
       focus.append("circle")
+          .attr('id', 'focusCircle')
           .attr("r", 4.5);
+      focus.append('line')
+          .attr('id', 'focusLineX')
+          .attr('class', 'focusLine');
+      focus.append('line')
+          .attr('id', 'focusLineY')
+          .attr('class', 'focusLine');
 
       focus.append("text")
+          .attr('id', "focusText")
           .attr("x", 10)
           .attr("dy", ".35em");
 
@@ -118,8 +126,26 @@ function timeSeriesChart() {
             d1 = data[i] || [Infinity];
             d = x0 - d0[0] > d1[0] - x0 ? d1 : d0;
 
-        focus.attr("transform", "translate(" + (xScale(d[0]) + margin.left) + "," + (yScale(d[1]) + margin.bottom) + ")");
+        // focus.attr("transform", "translate(" + (xScale(d[0]) + margin.left) + "," + (yScale(d[1]) + margin.bottom) + ")");
         focus.select("text").text(d3.format(",.0f")(d[1]) + " lbs");
+
+        var x = xScale(d[0]) + margin.left,
+            y = yScale(d[1]) + margin.bottom,
+            yDomain = d3.extent(data, function(d) { return d[1]; });
+            xDomain = d3.extent(data, function(d) { return d[0]; });
+
+        focus.select('#focusCircle')
+            .attr('cx', x)
+            .attr('cy', y);
+        focus.select('#focusLineX')
+            .attr('x1', x).attr('y1', yScale(yDomain[0]) + margin.bottom)
+            .attr('x2', x).attr('y2', yScale(yDomain[1]));
+        focus.select('#focusLineY')
+            .attr('x1', xScale(xDomain[0]) + margin.left).attr('y1', y)
+            .attr('x2', xScale(xDomain[1]) + margin.right + margin.left).attr('y2', y);
+        focus.select('#focusText')
+            .attr('x', x + 10)
+            .attr('y', y - 10);
       }
 
 

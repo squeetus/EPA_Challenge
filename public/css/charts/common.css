@@ -56,9 +56,17 @@
 
 .focus circle {
   fill: none;
+  pointer-events: none;
   stroke: #18314F;
   stroke-width: 2px;
   opacity: .6;
+}
+
+.focusLine {
+    fill: none;
+    pointer-events: none;
+    stroke: #18314F;
+    stroke-width: 0.5px;
 }
 
 .focusOverlay {
