@@ -115,4 +115,20 @@ switch(version) {
       }
     });
     break;
+  case 3:
+    chart = USAchart();
+    chart.bubbleRange([3, 10]);
+
+    getData(params.naics, function( data ) {
+      d3.select("#vis")
+        .append("div")
+        .attr("class", "chartTitle")
+        // .text("USA Map")
+        .append("div")
+        .attr("id", "map1")
+        .attr("class", "map")
+        .datum(data)
+        .call(chart);
+    });
+    break;
 }
