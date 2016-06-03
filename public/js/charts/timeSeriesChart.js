@@ -1,9 +1,10 @@
 function timeSeriesChart() {
 
-  var margin = {top: 20, right: 20, bottom: 20, left: 50},
+  var margin = {top: 20, right: 100, bottom: 20, left: 50},
       width = 760,
       height = 200,
       chartContainer,
+      overlays = 0,
       xValue = function(d) { return d[0]; },
       yValue = function(d) { return d[1]; },
       xScale = d3.scale.linear(),
@@ -50,7 +51,7 @@ function timeSeriesChart() {
       chartContainer.append("g").attr("class", "y axis");
 
       // Update the outer dimensions.
-      svg .attr("width", width + margin.left + margin.right)
+      svg.attr("width", width + margin.left + margin.right)
           .attr("height", height);
 
       // Update the inner dimensions.
@@ -66,29 +67,23 @@ function timeSeriesChart() {
           .attr("transform", "translate(0," + xScale.range()[0] + ")")
           .call(yAxis);
 
-      //
-      var g = d3.select(this).select("#chartContainer").selectAll(".overlay").data([data]).enter().append("g");//.attr("class", "chart");
+      // Bind the data to the relevant element
+      var g = d3.select(this).select("#chartContainer").selectAll(".overlay").data([data]).enter().append("g");
       g.append("path").attr("class", "area");
       g.append("path").attr("class", "line");
 
       // Update the area path.
       g.select(".area")
           .attr("d", area.y0(yScale.range()[0]));
-          // .on("mouseover", function (d) {
-          //   d3.select(this).classed("hover", true);
-          // })
-          // .on("mouseout", function (d) {
-          //   d3.select(this).classed("hover", false);
-          // });
 
       // Update the line path.
       g.select(".line")
           .attr("d", line);
 
+      // Set up the elements for the tooltip
       var focus = svg.append("g")
           .attr("class", "focus")
           .style("display", "none");
-
       focus.append("circle")
           .attr('id', 'focusCircle')
           .attr("r", 4.5);
@@ -98,12 +93,11 @@ function timeSeriesChart() {
       focus.append('line')
           .attr('id', 'focusLineY')
           .attr('class', 'focusLine');
-
       focus.append("text")
+          .attr('class', "focusText")
           .attr('id', "focusText")
           .attr("x", 10)
           .attr("dy", ".35em");
-
       chartContainer.append("rect")
           .attr("class", "focusOverlay")
           .attr("width", width)
@@ -112,43 +106,55 @@ function timeSeriesChart() {
           .on("mouseout", function() { focus.style("display", "none"); })
           .on("mousemove", mousemove);
 
-
-
-
+      // Handle tooltip overlay
       function mousemove() {
+        // (re)set the scale domain
         yScale
             .domain([0, d3.max(data, function(d) { return d[1]; })]);
 
+        // set relevant positions for the given mouse movement
         var x0 = xScale.invert(d3.mouse(this)[0]),
-            // y = d3.select(this).node().parentNode.yScale,
             i = bisect(data, x0, 1),
             d0 = data[i - 1],
             d1 = data[i] || [Infinity];
             d = x0 - d0[0] > d1[0] - x0 ? d1 : d0;
 
-        // focus.attr("transform", "translate(" + (xScale(d[0]) + margin.left) + "," + (yScale(d[1]) + margin.bottom) + ")");
-        focus.select("text").text(d3.format(",.0f")(d[1]) + " lbs");
+        i = x0 - d0[0] > d1[0] - x0 ? i : i - 1;
+        var ys = [];
+
+        // collect all data from overlays
+        for( var j = 0; j < d3.select("#chartContainer").selectAll(".areaOverlay").selectAll("g").length; j++ ) {
+          ys[j + 1] = d3.select("#overlay" + j).data()[0][i][1];
+        }
 
         var x = xScale(d[0]) + margin.left,
             y = yScale(d[1]) + margin.bottom,
             yDomain = d3.extent(data, function(d) { return d[1]; });
             xDomain = d3.extent(data, function(d) { return d[0]; });
+        ys[0] = d[1];
 
-        focus.select('#focusCircle')
+        focus.selectAll('#focusCircle')
             .attr('cx', x)
-            .attr('cy', y);
+            .attr('cy', function(d, i) {
+                if(ys.length) return yScale((ys[i])) + margin.bottom;
+                return y;
+            });
         focus.select('#focusLineX')
             .attr('x1', x).attr('y1', yScale(yDomain[0]) + margin.bottom)
             .attr('x2', x).attr('y2', yScale(yDomain[1]));
-        focus.select('#focusLineY')
-            .attr('x1', xScale(xDomain[0]) + margin.left).attr('y1', y)
-            .attr('x2', xScale(xDomain[1]) + margin.right + margin.left).attr('y2', y);
-        focus.select('#focusText')
+        // focus.select('#focusLineY')
+        //     .attr('x1', xScale(xDomain[0]) + margin.left).attr('y1', y)
+        //     .attr('x2', xScale(xDomain[1]) + margin.right + margin.left).attr('y2', y);
+        focus.selectAll('.focusText')
             .attr('x', x + 10)
-            .attr('y', y - 10);
+            .attr('y', function(d, i) {
+                if(ys.length) return yScale((ys[i])) + margin.bottom - 10;
+                return y - 10;
+            })
+            .text(function(d, i) {
+              return d3.format(",.0f")(ys[i]) + " lbs";
+            });
       }
-
-
     });
   }
 
@@ -167,59 +173,41 @@ function timeSeriesChart() {
           .domain([0, d3.max(data, function(d) { return d[1]; })]);
       }
 
-      var g = d3.select(this).select("#chartContainer").selectAll(".overlay").data([data]).enter().append("g").attr("class", "chart");
+      // Add an overlay element
+      var g = d3.select(this).select("#chartContainer").selectAll(".overlay").data([data])
+                .enter().append("g")
+                  .attr("class", "areaOverlay")
+                  .attr("id", "overlay" + overlays);
       g.append("path").attr("class", "area");
       g.append("path").attr("class", "line");
 
       // Update the area path.
       g.select(".area")
-          .attr("d", area.y0(yScale.range()[0]))
-          .on("mouseover", function (d) {
-            d3.select(this).classed("hover", true);
-          })
-          .on("mouseout", function (d) {
-            d3.select(this).classed("hover", false);
-          });
+          .attr("d", area.y0(yScale.range()[0]));
 
       // Update the line path.
       g.select(".line")
           .attr("d", line);
-      // var focus = d3.select(this).select("#chartContainer").append("g")
-      //     .attr("class", "focus")
-      //     .style("display", "none");
-      //
-      // focus.append("circle")
-      //     .attr("r", 4.5);
-      //
-      // focus.append("text")
-      //     .attr("x", 10)
-      //     .attr("dy", ".35em");
-      //
-      // chartContainer.append("rect")
-      //     .attr("class", "focusOverlay")
-      //     .attr("width", width)
-      //     .attr("height", height)
-      //     .on("mouseover", function() { focus.style("display", null); })
-      //     .on("mouseout", function() { focus.style("display", "none"); })
-      //     .on("mousemove", mousemove);
-      //
-      // console.log(yScale.domain());
-      //
-      //
-      // function mousemove() {
-      //   yScale
-      //       .domain([0, d3.max(data, function(d) { return d[1]; })]);
-      //   var x0 = xScale.invert(d3.mouse(this)[0]),
-      //       i = bisect(data, x0, 1),
-      //       d0 = data[i - 1],
-      //       d1 = data[i] || [Infinity];
-      //       d = x0 - d0[0] > d1[0] - x0 ? d1 : d0;
-      //
-      //   focus.attr("transform", "translate(" + (xScale(d[0]) + margin.left) + "," + (yScale(d[1]) + margin.bottom) + ")");
-      //
-      //   focus.select("text").text(d[1]);
-      // }
 
+      // Add new tooltip elements
+      var focus = d3.select(".focus");
+      focus.append("circle")
+          .attr('id', 'focusCircle')
+          .attr("r", 4.5);
+      focus.append('line')
+          .attr('id', 'focusLineX')
+          .attr('class', 'focusLine');
+      focus.append('line')
+          .attr('id', 'focusLineY')
+          .attr('class', 'focusLine');
+      focus.append("text")
+          .attr('class', 'focusText')
+          .attr('id', "focusText" + overlays)
+          .attr("x", 10)
+          .attr("dy", ".35em");
+
+      // increment the overlay count
+      overlays++;
     });
   };
 

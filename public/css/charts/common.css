@@ -67,6 +67,11 @@
     pointer-events: none;
     stroke: #18314F;
     stroke-width: 0.5px;
+    opacity: 0.5;
+}
+
+.areaOverlay {
+  pointer-events: none;
 }
 
 .focusOverlay {
