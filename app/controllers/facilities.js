@@ -247,12 +247,15 @@ exports.methods = function(req, res, next) {
 
 /*
     Return a list of top treatment method counts ??FILTERED FOR CHEMICAL AND FOR METHOD??
-    Route: /data/methods/chemical/method
+    Route: /data/methods/cas/:cas/count
 */
-exports.methodsChemicalMethod = function(req, res, next) {
-  var chem = (req.query.chems) ? req.query.chems.split(',') : [],
-      methods = (req.query.methods) ? req.query.methods.split(',') : [];
+exports.methodCount = function(req, res, next) {
+  // var chem = (req.query.chems) ? req.query.chems.split(',') : [],
+      var methods = (req.query.methods) ? req.query.methods.split(',') : [];
       naics = (req.query.naics) ? req.query.naics : "";
+
+  chem = [req.params.cas];
+  methods = ["A03"];
 
   Facility
       .aggregate([
@@ -273,16 +276,16 @@ exports.methodsChemicalMethod = function(req, res, next) {
             chemicals: {$filter: {  // only project the relevant chemicals
                 input: '$chemicals',
                 as: 'c',
-                cond: { $and: [
-                  {$in : ['$$c.chemical', chem ] },           // filter data for specified chemicals
-                  {$filter: {
-                      input: '$$c.methods',
-                      as: 'm',
-                      cond: {$in : ['$$m.method', methods ] }  // AND specified any treatment method
-                      }
-                    }
-                ]
-                }
+                // cond: { $and: [
+                //   {$in : ['$$c.chemical', chem ] },           // filter data for specified chemicals
+                //   {$filter: {
+                //       input: '$$c.methods',
+                //       as: 'm',
+                //       cond: {$in : ['$$m.method', methods ] }  // AND specified any treatment method
+                //       }
+                //     }
+                // ]
+                cond: {$in : ['$$c.chemical', chem ] }
               }
             }
           }
@@ -302,6 +305,40 @@ exports.methodsChemicalMethod = function(req, res, next) {
           if (err) return next(err);
           if (!data)
               return next("no data for treatment methods.");
-          res.json(data);
+
+          // total method count
+          totalMethodCount = [];
+          for(var i = 0; i < data[0].total[0].length; i++ )
+            totalMethodCount[i] = 0;
+
+          // compute yearly method count for the specific chemicals for each facility
+          // for each facility
+          data.forEach(function(d) {
+            d.methodCount = [];
+            // initialize total array
+            for(var i = 0; i < d.total[0].length; i++ )
+              d.methodCount[i] = 0;
+
+            // for each chemical's usage
+            d.methods.forEach(function(m) {
+              m.forEach(function(methods) {
+                  if(methods.method == "A03") {   // hacky, doesn't consider multiple chems
+                    // for each year
+                    for(var i = 0; i < methods.count.length; i++ ) {
+                      d.methodCount[i] += methods.count[i];
+                      totalMethodCount[i] += methods.count[i];
+                    }
+                  }
+              });
+
+            });
+
+            // delete d.usage;
+            // d.total = d.total.slice(from, to);
+
+          });
+          // console.log(totalMethodCount);
+          // res.json(data);
+          res.json(totalMethodCount);
   });
 };

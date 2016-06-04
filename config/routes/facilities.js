@@ -28,8 +28,8 @@ module.exports = function( app, handleError ) {
   // get list of top treatment method counts
   app.get('/data/methods', Facility.methods, handleError);
 
-  // get list of top treatment method counts ??FILTERED FOR CHEMICAL AND FOR METHOD??
-  app.get('/data/methods/chemical/method', Facility.methodsChemicalMethod, handleError);
+  // get method count for a given chemical and industry
+  app.get('/data/methods/cas/:cas/count', Facility.methodCount, handleError);
 
   ///////////////////
   //////  Views  ////
