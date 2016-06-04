@@ -1,0 +1,20 @@
+{
+  "name": "epa_challenge",
+  "description": "",
+  "main": "server.js",
+  "authors": [
+    "David 'Squeetus' Burlinson"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/squeetus/EPA_Challenge",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "^3.5.17"
+  }
+}

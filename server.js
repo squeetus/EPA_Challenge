@@ -7,6 +7,8 @@ var express = require('express'),
 var modelsPath = __dirname + '/app/models';
 require(modelsPath + '/chemicals.js');
 require(modelsPath + '/facilities.js');
+
+
 mongoose.connect(config.db, function(err){
  if(err) console.log("Mongoose error: ", err);
 });
@@ -20,6 +22,7 @@ var EPAFileParser = require('./app/controllers/EPAFileParser');
 app.set('view engine', 'jade');
 // serve static files from the public directory
 app.use(express.static(config.root + '/public'));
+app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 
 app.listen(config.port, function () {
   console.log('EPA Challenge app listening on port', config.port, '!');
