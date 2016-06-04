@@ -201,12 +201,18 @@ exports.chemicalUsage = function(req, res, next) {
   });
 };
 
+/*
+    Return a list of top treatment method counts
+    Route: /data/methods/
+*/
 exports.methods = function(req, res, next) {
   Facility
       .aggregate([
         {$match: {
             chemicals: {
-               $elemMatch: { methods: {$exists: true} } // find facilities with any treatment method
+               $elemMatch: {
+                 methods: {$exists: true}
+               }
              }
           }
         },
@@ -226,6 +232,67 @@ exports.methods = function(req, res, next) {
             tri_facility_id: 1,
             // chemicals: 1
             chemicals: "$chemicals.chemical",
+            methods: "$chemicals.methods"
+          }
+        },
+      ])
+      .limit(1000)
+      .exec(function (err, data) {
+          if (err) return next(err);
+          if (!data)
+              return next("no data for treatment methods.");
+          res.json(data);
+  });
+};
+
+/*
+    Return a list of top treatment method counts ??FILTERED FOR CHEMICAL AND FOR METHOD??
+    Route: /data/methods/chemical/method
+*/
+exports.methodsChemicalMethod = function(req, res, next) {
+  var chem = (req.query.chems) ? req.query.chems.split(',') : [],
+      methods = (req.query.methods) ? req.query.methods.split(',') : [];
+      naics = (req.query.naics) ? req.query.naics : "";
+
+  Facility
+      .aggregate([
+        {$match: {
+          primary_naics: {$regex: new RegExp('^' + naics)},
+          chemicals: {
+             $elemMatch: { $and: [
+               {chemical : {$in : chem }},  // find facilities with the specified chemicals
+               {'methods.method': {$in : methods }}   // AND with any treatment method
+             ]
+             }
+           }
+         }
+        },
+        {$project:{
+            primary_naics: 1,
+            tri_facility_id: 1,
+            chemicals: {$filter: {  // only project the relevant chemicals
+                input: '$chemicals',
+                as: 'c',
+                cond: { $and: [
+                  {$in : ['$$c.chemical', chem ] },           // filter data for specified chemicals
+                  {$filter: {
+                      input: '$$c.methods',
+                      as: 'm',
+                      cond: {$in : ['$$m.method', methods ] }  // AND specified any treatment method
+                      }
+                    }
+                ]
+                }
+              }
+            }
+          }
+        },
+        {$project: {
+            primary_naics: 1,
+            tri_facility_id: 1,
+            // chemicals: 1
+            chemicals: "$chemicals.chemical",
+            total: "$chemicals.usage.total_usage",
             methods: "$chemicals.methods"
           }
         },
