@@ -14,12 +14,19 @@ function matrixPlot() {
   function matrix(selection) {
     selection.each(function(data) {
       width = d3.select(this.parentNode).node().getBoundingClientRect().width - margin.left - margin.right - 30;
-      height = width;
 
-      var x = d3.scale.ordinal().rangeBands( [ 0, width ] ),
-        y = d3.scale.ordinal().rangeBands( [ 0, height ] ),
+      var x,
+        y,
         z = d3.scale.linear().domain( [0, d3.max(data, function(d) { return d3.max(d.data); })] ).range([0.0, 1]),//.clamp( true ),
         c = d3.scale.category10().domain( d3.range( 10 ) );
+
+        x = d3.scale.ordinal().rangeBands( [ 0, width ] );
+        x.domain( d3.range( data[0].data.length ));
+
+        height = x.rangeBand() * data.length;
+
+        y = d3.scale.ordinal().rangeBands( [ 0, height ] );
+        y.domain( d3.range( data.length ) );
 
       // Append an svg element for the chart
       var svg = d3.select(this).append("svg");
@@ -29,18 +36,17 @@ function matrixPlot() {
 
       // Update the outer dimensions.
       svg.attr("width", width + margin.left + margin.right)
-          .attr("height", height);
+          .attr("height", height + margin.top + margin.bottom );
 
       // Update the inner dimensions.
       chartContainer.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      x.domain( d3.range( data[0].data.length ) );
-      y.domain( d3.range( data[0].data.length ) );
+
 
       chartContainer.append("rect")
         .attr("class", "background")
-        .attr("width", width)
-        .attr("height", height);
+        .attr("width", width )
+        .attr("height", height );
 
       var row = chartContainer.selectAll(".row")
         .data(data)
@@ -56,7 +62,7 @@ function matrixPlot() {
 
       row.append("text")
         .attr("x", -4)
-        .attr("y", x.rangeBand() / 2)
+        .attr("y", y.rangeBand() / 2)
         .attr("font-size", "7px")
         .attr("dy", "5")
         .attr("text-anchor", "end")
@@ -66,18 +72,22 @@ function matrixPlot() {
            .data(data[0].data)
          .enter().append("g")
            .attr("class", "column")
-           .attr("transform", function(d, i) { return "translate(" + y(i) + ")rotate(-90)"; });
+           .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
 
        column.append("line")
-           .attr("x1", -width);
+           .attr("x1", -width - margin.left - margin.right);
 
        column.append("text")
            .attr("x", 2)
-           .attr("y", y.rangeBand() / 2)
+           .attr("y", x.rangeBand() / 2)
            .attr("dy", ".32em")
            .attr("font-size", "7px")
            .attr("text-anchor", "start")
-           .text(function(d, i) { return (1987 + i); });
+           .text(function(d, i) { return (1987 + i); })
+           .on('mouseover', function(d, i) {
+              d3.select(d3.select(this).node().parentNode)
+                    .style("opacity", 0);
+           });
           //  .attr("transform", function(d, i) { return "rotate(90)"; });
 
       function rowe(row) {
@@ -93,6 +103,8 @@ function matrixPlot() {
             // .on("mouseover", function(d) { console.log(d); });
             // .on("mouseout", mouseout);
       }
+
+      console.log(column);
 
     });
   }
