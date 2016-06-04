@@ -16,5 +16,10 @@
   ],
   "dependencies": {
     "d3": "^3.5.17"
+  },
+  "devDependencies": {
+    "d3-queue": "^2.0.3",
+    "bootstrap": "^3.3.6",
+    "jquery": "^2.2.4"
   }
 }
