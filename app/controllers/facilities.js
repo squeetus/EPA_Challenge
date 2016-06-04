@@ -303,8 +303,11 @@ exports.methodCount = function(req, res, next) {
       .limit(1000)
       .exec(function (err, data) {
           if (err) return next(err);
-          if (!data)
-              return next("no data for treatment methods.");
+          if (!data || data.length === 0) {
+            //  res.writeHead(200);
+            //  return res.end;
+            return next("no data for treatment methods.");
+          }
 
           // total method count
           totalMethodCount = [];

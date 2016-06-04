@@ -1,4 +1,3 @@
-
 /*
     Asynchronous method queries for facility usage data
       and passes the resultant JSON to the callback function for consumption
@@ -14,6 +13,23 @@ var getData = function(naics, cb) {
       return;
     }
     cb(data);
+  }).error(function(err){
+      console.log(err);
+  });
+};
+
+var getMethodCount = function(cas, cb) {
+  // GET facility data from API
+  $.ajax({
+      url: "/data/methods/cas/" + cas + "/count?naics=2211",
+      type: "get"
+  }).done(function(data) {
+    if(typeof data != 'object') {
+      console.log("error!", cas);
+      // cb("err", {"cas": cas, "data": null});
+      return;
+    }
+    cb(null, {"cas": cas, "data": data});
   }).error(function(err){
       console.log(err);
   });
@@ -133,16 +149,30 @@ switch(version) {
     break;
   case 4:
     chart = matrixPlot();
-    getData(params.naics, function( data ) {
-      d3.select("#vis")
-        .append("div")
-        .attr("class", "chartTitle")
-        // .text("USA Map")
-        .append("div")
-        .attr("id", "matrix1")
-        .attr("class", "matrix")
-        .datum(data)
-        .call(chart);
-    });
+    var q = d3_queue.queue(); //1 for sequential queries
+    var cas = ["7647010", "7664939", "7664393", "N420", "N458", "N040", "N450", "N982", "N090",
+                "N100", "N495", "N770", "N150", "N020", "N096", "N590", "7664417", "N725", "191242",
+                "N050", "N760", "91203", "N010"];
+
+    for( var i = 0; i < cas.length; i++ ) {
+      q.defer(getMethodCount, cas[i]);
+    }
+
+
+    q.awaitAll(function(error, data) {
+        if (error) throw error;
+
+        d3.select("#vis")
+          .append("div")
+          .attr("class", "chartTitle")
+          // .text("USA Map")
+          .append("div")
+          .attr("id", "matrix1")
+          .attr("class", "matrix")
+          .datum(data)
+          .call(chart);
+
+
+      });
     break;
 }
