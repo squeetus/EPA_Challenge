@@ -131,4 +131,18 @@ switch(version) {
         .call(chart);
     });
     break;
+  case 4:
+    chart = matrixPlot();
+    getData(params.naics, function( data ) {
+      d3.select("#vis")
+        .append("div")
+        .attr("class", "chartTitle")
+        // .text("USA Map")
+        .append("div")
+        .attr("id", "matrix1")
+        .attr("class", "matrix")
+        .datum(data)
+        .call(chart);
+    });
+    break;
 }

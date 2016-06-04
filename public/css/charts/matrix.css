@@ -1,0 +1,22 @@
+/* tell the SVG path to be a thin blue line without any area fill */
+path {
+	stroke: black;
+	stroke-width: 1.5;
+	fill: none;
+	pointer-events: none;
+}
+
+.background {
+  fill: #eee;
+}
+
+line {
+  stroke: #fff;
+}
+
+text.active {
+  fill: red;
+}
+
+.rowHighlight {
+}
