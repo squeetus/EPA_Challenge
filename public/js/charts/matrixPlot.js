@@ -53,12 +53,33 @@ function matrixPlot() {
       .enter().append("g")
         .attr("class", "row")
         .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
-        // .attr("opacity", function(d, i) { return i < ? 1 : 0.2; })
-        // .classed("rowHighlight", function(d, i) { return i < 2 ? true : false; })
+        .on('mouseover', function(d, i) {
+          d3.selectAll(".cell").style("opacity", 0.1);
+          d3.select(this).selectAll(".cell").style("opacity", 1);
+          // bind text labels to show number of treatment methods
+          d3.select(this).selectAll(".cell")
+            .append("text")
+            .attr("class", "cellLabel")
+            .attr("font-size", "9px")
+            .style("stroke", function(d, i) {
+              return z(d) > 0.3 ? "white" : "black";
+            })
+            .attr("x", function(d,i) { return x(i) + 2; })
+            .attr("y", x.rangeBand() / 2)
+            .text(function(d, i) {
+              return d;
+            });
+        })
+        .on('mouseout', function(d, i) {
+          d3.selectAll(".cell").style("opacity", 1);
+          // remove text labels
+          d3.select(this).selectAll(".cellLabel").remove();
+        })
         .each(rowe);
 
       row.append("line")
-        .attr("x2", width);
+        .attr("x2", width)
+        .style("pointer-events", "none");
 
       row.append("text")
         .attr("x", -4)
@@ -75,7 +96,8 @@ function matrixPlot() {
            .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
 
        column.append("line")
-           .attr("x1", -width - margin.left - margin.right);
+           .attr("x1", -width - margin.left - margin.right)
+           .style("pointer-events", "none");
 
        column.append("text")
            .attr("x", 2)
@@ -83,28 +105,45 @@ function matrixPlot() {
            .attr("dy", ".32em")
            .attr("font-size", "7px")
            .attr("text-anchor", "start")
-           .text(function(d, i) { return (1987 + i); })
-           .on('mouseover', function(d, i) {
-              d3.select(d3.select(this).node().parentNode)
-                    .style("opacity", 0);
-           });
-          //  .attr("transform", function(d, i) { return "rotate(90)"; });
+           .text(function(d, i) { return (1987 + i); });
 
       function rowe(row) {
         var cell = d3.select(this).selectAll(".cell")
             .data(row.data)
-          .enter().append("rect")
+          .enter().append("g")
             .attr("class", "cell")
+            .attr("x", function(d,i) { return x(i); })
+            .attr("width", x.rangeBand())
+            .attr("height", y.rangeBand())
+            .on("mouseover", function(d) {
+              d3.event.stopPropagation();
+              d3.selectAll(".cell").style("opacity", 0.1);
+              d3.select(this).style("opacity", 1);
+
+              // add text labels to each cell
+              d3.select(this)
+                    .append("text")
+                    .attr("class", "cellLabel")
+                    .attr("font-size", "10px")
+                    .attr("x", function(d,i) { return (+d3.select(d3.select(this).node().parentNode).attr("x") + x.rangeBand()); })
+                    .attr("y", x.rangeBand() / 2)
+                    .text(function(d, i) {
+                      return d;
+                    });
+            })
+            .on('mouseout', function(d, i) {
+              d3.selectAll(".cell").style("opacity", 1);
+              // remove text labels
+              d3.select(this).selectAll(".cellLabel").remove();
+            })
+            .append("rect")
             .attr("x", function(d,i) { return x(i); })
             .attr("width", x.rangeBand())
             .attr("height", y.rangeBand())
             .style("fill-opacity", function(d) { return z(d); })
             .style("fill", function(d) { return 'darkgreen'; });
-            // .on("mouseover", function(d) { console.log(d); });
-            // .on("mouseout", mouseout);
-      }
 
-      console.log(column);
+      }
 
     });
   }
