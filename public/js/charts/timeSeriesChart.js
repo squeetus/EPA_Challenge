@@ -28,7 +28,7 @@ function timeSeriesChart() {
       // Update the x-scale
       xScale
           .domain(d3.extent(data, function(d) { return d[0]; }))
-          .range([0, width - margin.left - margin.right]);
+          .range([0, width - margin.left]);
 
       // Update the y-scale
       yScale
@@ -122,10 +122,10 @@ function timeSeriesChart() {
         i = x0 - d0[0] > d1[0] - x0 ? i : i - 1;
         var ys = [];
 
-        // collect all data from overlays
-        for( var j = 0; j < d3.select("#chartContainer").selectAll(".areaOverlay").selectAll("g").length; j++ ) {
-          ys[j + 1] = d3.select("#overlay" + j).data()[0][i][1];
-        }
+        // collect all data from overlays !! this selects ALL areaOverlays, not just this chart's.
+        d3.selectAll(".areaOverlay").each(function(d, j){
+            ys[j + 1] = d[i][1];
+        });
 
         var x = xScale(d[0]) + margin.left,
             y = yScale(d[1]) + margin.bottom,
@@ -190,7 +190,7 @@ function timeSeriesChart() {
           .attr("d", line);
 
       // Add new tooltip elements
-      var focus = d3.select(".focus");
+      var focus = d3.select(this).selectAll(".focus");
       focus.append("circle")
           .attr('id', 'focusCircle')
           .attr("r", 4.5);

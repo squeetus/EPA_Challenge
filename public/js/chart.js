@@ -150,7 +150,7 @@ switch(version) {
   case 4:
     chart = matrixPlot();
     var q = d3_queue.queue(); //1 for sequential queries
-    var cas = ["7647010", "7664939", "7664393", "N420", "N458", "N040", "N450", "N982", "N090",
+    var cas = [7647010, "7664939", "7664393", "N420", "N458", "N040", "N450", "N982", "N090",
                 "N100", "N495", "N770", "N150", "N020", "N096", "N590", "7664417", "N725", "191242",
                 "N050", "N760", "91203", "N010"];
 
@@ -165,7 +165,7 @@ switch(version) {
         d3.select("#vis")
           .append("div")
           .attr("class", "chartTitle")
-          // .text("USA Map")
+          .text("Air Treatment Methods for Electric Utilities' most-used chemicals ")
           .append("div")
           .attr("id", "matrix1")
           .attr("class", "matrix")

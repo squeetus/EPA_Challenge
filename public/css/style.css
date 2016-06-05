@@ -25,8 +25,37 @@ body {
   width: inherit;
 }
 
+
 #vis {
   width:720px;
+  border: solid 3px #384E77;
+}
+
+#visA {
+  width:350px;
+  float: left;
+  border: solid 3px #384E77;
+  margin-right: 7px;
+  max-height: 1000px;
+}
+
+#visB {
+  width:400px;
+  float: left;
+  border: solid 3px #384E77;
+  margin-bottom: 7px;
+}
+
+#visC {
+  width:400px;
+  float: left;
+  border: solid 3px #384E77;
+}
+
+#visD {
+  position: relative;
+  width:350px;
+  float: right;
   border: solid 3px #384E77;
 }
 

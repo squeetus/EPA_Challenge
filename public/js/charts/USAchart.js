@@ -13,10 +13,10 @@ function USAchart() {
       selection.each(function(data) {
         // set the width
         width = d3.select(this.parentNode).node().getBoundingClientRect().width - margin.left - margin.right;
-        height = width*0.7;
+        height = width;
 
         projection = d3.geo.albersUsa()
-            .scale(700)
+            .scale(width * 1.5)
             .translate([width/2, height/2]);
 
         var path = d3.geo.path()
