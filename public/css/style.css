@@ -36,7 +36,7 @@ body {
   float: left;
   border: solid 3px #384E77;
   margin-right: 7px;
-  max-height: 1000px;
+  /*max-height: 1000px;*/
 }
 
 #visB {

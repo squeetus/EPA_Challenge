@@ -3,6 +3,107 @@ var mongoose = require('mongoose'),
     jsdom = require('jsdom'),
     d3 = require('d3');
 
+/*
+  Set up a mongodb query object
+*/
+var makeFilter = function(query) {
+
+  // list of valid attributes to filter the query on
+  /*
+    tri_facility_id   : id    = ""
+    facility_name     : name  = ""
+    state             : state = ""
+    bia_code          : bia   = ""
+    tribe             : tribe = ""
+    primary_naics     : industry  = ""
+    chemicals         : chemicals = [" ", " "]
+  */
+  // keys: query variables
+  // values: model attributes
+  var propertyConversion = {
+    "id": "tri_facility_id",
+    "name": "facility_name",
+    "state": "state",
+    "bia": "bia_code",
+    "tribe": "tribe",
+    "primary_naics": "industry",
+    "chemicals": "chemicals"
+  };
+  // object to populate with filters
+  var dbQuery = {};
+
+  // iterate over all query variables
+  for (var propName in query) {
+    // only add query filters if relevant attributes
+    if (query.hasOwnProperty(propName) && propertyConversion[propName] !== undefined) {
+        // console.log(propName, query[propName]);
+        dbQuery[propName] = query[propName];
+    }
+  }
+
+  // console.log(dbQuery);
+  return dbQuery;
+};
+
+var makePipeline = function(query) {
+  var matchCriteria = {}, projection = {}, pipeline;
+
+  var propertyConversion = {
+    "id": "tri_facility_id",
+    "name": "facility_name",
+    "state": "state",
+    "bia": "bia_code",
+    "tribe": "tribe",
+    "industry": "primary_naics",
+    "chemicals": "chemicals"
+  };
+
+  projection = {
+    "tri_facility_id": 1,
+    "name": 1,
+    "state": 1,
+    "bia": 1,
+    "tribe": 1,
+    "primary_naics": 1,
+    "chemicals": 1,
+    total: {$sum: "$total_usage"}
+  };
+
+  // iterate over all query variables
+  for (var propName in query) {
+    // only add query filters if relevant attributes
+    if (query.hasOwnProperty(propName) && propertyConversion[propName] !== undefined) {
+        // console.log(propName, query[propName]);
+        if(propName == "chemicals")
+          console.log("CHEMICALS");
+        else if(propName == "industry")
+          matchCriteria[propertyConversion[propName]] =  {$regex: new RegExp('^' + query[propName])};
+        else
+        matchCriteria[propertyConversion[propName]] = query[propName];
+    }
+  }
+
+  pipeline = [
+    {
+      $match: matchCriteria
+    },
+    {
+      $project: projection
+    },
+    {
+      $sort: { "total": -1 }
+    },
+    {
+      $limit : (query.limit) ? +query.limit : 100
+    },
+    {
+      $skip : (query.skip) ? +query.skip : 0
+    }
+  ];
+  console.log(pipeline);
+  return pipeline;
+};
+
 
 /************************************************
 
@@ -62,6 +163,41 @@ exports.showFacilities = function(req, res, next) {
     API Endpoints for Facility queries
 
 ************************************************/
+
+/*
+    Get all facilities
+      Filtered for the given attributes
+    Route: /data/facilities/filter
+*/
+exports.filter = function(req, res, next) {
+    var limit = (req.query.limit) ? +req.query.limit : 100,
+        skip = (req.query.skip) ? +req.query.skip : 0;
+
+    // var query = makeFilter(req.query);
+
+    // Facility
+    //     .find(query)
+    //     .sort( { facility_name: 1 } )
+    //     .skip(skip)
+    //     .limit(limit)
+    //     .exec(function (err, data) {
+    //         if (err) return next(err);
+    //         if (!data)
+    //             return next("no data");
+    //         res.json(data);
+    // });
+
+    var pipeline = makePipeline(req.query);
+
+    Facility
+        .aggregate(pipeline)
+        .exec(function (err, data) {
+          if (err) return next(err);
+          if (!data)
+              return next("no data for facility with facility id " + req.params.fid);
+          res.json(data);
+        });
+};
 
 
 /*

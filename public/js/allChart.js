@@ -67,9 +67,9 @@ getData(params.naics, function( data ) {
     d3.select("#visA")
     .append("div")
     .attr("class", "chartTitle")
-    .html( "Facility Name:" + d.facility_name + "<br />" +
-            "Location:&emsp;&emsp;&emsp;" + d.loc + "<br />" +
-            "TRI Facility ID:&emsp;" + d.tri_facility_id
+    .html( "Facility Name:" + d.facility_name + "<br />" 
+            // "Location:&emsp;&emsp;&emsp;" + d.loc + "<br />" +
+            // "TRI Facility ID:&emsp;" + d.tri_facility_id
         )
     .append("div")
     .attr("id", "chart" + i)

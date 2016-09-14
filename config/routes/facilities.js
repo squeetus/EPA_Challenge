@@ -15,6 +15,9 @@ module.exports = function( app, handleError ) {
   //////  API  //////
   ///////////////////
 
+  // get all facility data (filtered from the params sent)
+  app.get('/data/facilities/filter', Facility.filter, handleError);
+
   // get specified facility data
   app.get('/data/facilities/id/:fid', Facility.facility, handleError);
   // get list of unique facilities
