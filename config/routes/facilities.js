@@ -39,6 +39,10 @@ module.exports = function( app, handleError ) {
   ///////////////////
 
   app.get('/facilities', Facility.showFacilities, handleError);
-  app.get('/facilities/:fid', Facility.showFacility, handleError);
+
+  /* Display information for a single facility
+        /facility?id=XXXX
+  */
+  app.get('/facility', Facility.showFacility, handleError);
 
 };
