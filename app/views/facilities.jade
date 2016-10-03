@@ -1,33 +1,22 @@
-doctype
-html( lang="en" )
-    head
-        title Facilities
-        meta( charset='utf-8' )
-        meta( http-equiv='X-UA-Compatible', content='IE=edge' )
-        meta( name='viewport', content='width=device-width, initial-scale=1.0' )
-        meta( name='description', content='Baking Bootstrap Snippets with Jade' )
-        //- Bootswatch Theme
-        link(href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.0/flatly/bootstrap.min.css", rel="stylesheet")
-        link(href="css/facility.css", rel="stylesheet")
+extends layout
 
-    body
-        .container
+block content
+  //- Bootswatch Theme
+  link(href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.0/flatly/bootstrap.min.css", rel="stylesheet")
+  link(href="css/facility.css", rel="stylesheet")
 
-          h1 Facilities
+  .container
+    h1 Facilities
 
-          button.btn.btn-info.p-a-3#back <
-          span
-          button.btn.btn-info.m-a-3#forward >
-          #page
-          br
+    button.btn.btn-info.p-a-3#back <
+    span
+    button.btn.btn-info.m-a-3#forward >
+    #page
+    br
 
-          .panels
+    .panels
 
-
-script( src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js')
-script( src='//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js' )
-script( src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js' )
-script.
-  page = #{page}
-  limit = #{limit}
-script(src="/js/facility.js")
+  script.
+    page = #{page}
+    limit = #{limit}
+  script(src="/js/facilities.js")
