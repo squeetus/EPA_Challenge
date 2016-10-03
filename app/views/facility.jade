@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  .container
+    h1 !{facility.facility_name}
+    div#mapElement
+
+  script.
+    facility = !{JSON.stringify(facility)}
+
+  //script(src="/js/util.js")
+  link(href='/css/facility.css', rel='stylesheet')
+  script(src="/js/components/topojson.v1.min.js")
+  script(src="/js/charts/USAchart.js")
+
+  script(src="/js/facility.js")
