@@ -1,3 +1,7 @@
 .chemicalData {
   margin-left: 25px;
 }
+
+#mapElement {
+  width: 300px;
+}
