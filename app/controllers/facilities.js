@@ -60,12 +60,13 @@ var makePipeline = function(query) {
 
   projection = {
     "tri_facility_id": 1,
-    "name": 1,
+    "facility_name": 1,
     "state": 1,
     "bia": 1,
     "tribe": 1,
     "primary_naics": 1,
     "chemicals": 1,
+    "loc": 1,
     total: {$sum: "$total_usage"}
   };
 
@@ -100,7 +101,7 @@ var makePipeline = function(query) {
       $skip : (query.skip) ? +query.skip : 0
     }
   ];
-  console.log(pipeline);
+  // console.log(pipeline);
   return pipeline;
 };
 
@@ -116,36 +117,19 @@ var makePipeline = function(query) {
     (Render html)
 */
 exports.showFacility = function(req, res, next) {
-  var htmlStub = '<div id="facility-container"></div>';
+    var pipeline = makePipeline(req.query);
+
     Facility
-        .findOne({
-            tri_facility_id: req.params.fid
-        })
+        .aggregate(pipeline)
         .exec(function (err, data) {
-            if (err) return next(err);
-            if (!data)
-                return next("no data for facility with facility id " + req.params.fid);
-            // res.render("facilities", {data: data});
+          if (err) return next(err);
+          if (!data)
+            res.render("index", {error: "no data for facility with facility id " + req.params.fid});
+          if (data.length != 1)
+            res.render("index", {error: "invalid query or filters for single facility. Try the following:  /facility?id=XXXX"});
 
-            // use jsdom and d3 to render the page, then send it to the client
-            jsdom.env(
-              htmlStub,
-              function (errors, window) {
-                var el = window.document.querySelector('#facility-container');
-                // var body = window.document.querySelector('body');
-
-                // bind facilities to divs
-                d3.select(el).selectAll('div')
-                      .data([data])
-                    .enter().append('div')
-                      .text(function(d) {
-                        return d.tri_facility_id;
-                      });
-
-                res.send(window.document.documentElement.innerHTML);
-              }
-            );
-    });
+          res.render("facility", {facility: data[0]});
+        });
 };
 
 /*
