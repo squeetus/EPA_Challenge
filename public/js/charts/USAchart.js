@@ -45,7 +45,13 @@ function USAchart() {
               .attr("class", "land")
               .attr("d", path);
 
-          radius.domain(d3.extent(data, function(d) { return d.total; }));
+          // Set up bubble radius for single or multiple facilities
+          if(!Array.isArray(data)) {
+            data = [data];
+            radius.domain([0, data[0].total]);
+          } else {
+            radius.domain(d3.extent(data, function(d) {  console.log(d); return d.total; }));
+          }
 
           // county borders
           // svg.insert("path", ".graticule")
@@ -69,7 +75,7 @@ function USAchart() {
               .attr("id", function(d) { return "bubble_" + d.tri_facility_id; } )
               .attr("class", "bubbleCircle")
               .attr("transform", function(d) { return d.loc !== null ?  "translate(" + projection(d.loc) + ")" : [0,0]; })
-              .attr("r", function(d) { return radius(d.total); })
+              .attr("r", function(d) { return d.total ? radius(d.total) : 10; })
               .on('mouseover', function(d) {
                   tooltip.html(
                     d.facility_name +
