@@ -1,0 +1,28 @@
+.bar {
+  fill: steelblue;
+
+  opacity: 1;
+  transition: opacity 250ms;
+}
+
+.bar.fade {
+  opacity: 0.2;
+  transition: opacity 250ms;
+}
+
+.axis--x path {
+  display: none;
+}
+
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 60px;
+  height: 30px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: black;
+  border: 0px;
+  border-radius: 5px;
+  pointer-events: none;
+}
