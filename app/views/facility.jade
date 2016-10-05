@@ -4,6 +4,7 @@ block content
   .container
     h1 !{facility.facility_name}
     div#mapElement
+    div#barElement
 
   script.
     facility = !{JSON.stringify(facility)}
@@ -12,5 +13,8 @@ block content
   link(href='/css/facility.css', rel='stylesheet')
   script(src="/js/components/topojson.v1.min.js")
   script(src="/js/charts/USAchart.js")
+
+  link(href='/css/charts/bar.css', rel='stylesheet')
+  script(src="/js/charts/bar.js")
 
   script(src="/js/facility.js")
